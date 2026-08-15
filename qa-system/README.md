@@ -7,6 +7,12 @@ out. A normal suite answers "did the assertions pass today". This one answers
 The full rationale, research, and phased plan are in
 [`docs/PLAN.md`](../docs/PLAN.md). This README is how to run it.
 
+<p align="center">
+  <img src="assets/report-preview.png" alt="The QA run report: regression / new-bug / fixed / needs-review / stable tallies, priority findings, and a regression card carrying the evidence diff and an LLM likely-cause" width="820" />
+  <br/>
+  <em>The report a run produces: what regressed, what got fixed, and - for each regression - the evidence diff (200 to 500, new console error) and a model-written likely cause. From <code>npm run demo</code>, which proves the pipeline on synthetic data with no live app or API key.</em>
+</p>
+
 ## What it does
 
 - **Remembers every run.** Each run writes a JSON snapshot plus its evidence
