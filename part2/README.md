@@ -41,11 +41,14 @@ npm run test:ui        # interactive runner: click a test and step through it
 too.) On the first run a browser always opens briefly to sign in - Trupeer blocks
 headless sign-in - then, in headless mode, the tests continue with no window.
 
-After any run, open the HTML report:
+The HTML report **opens in your browser automatically** when the run finishes -
+results, traces, and screenshots, no extra step. To reopen the last report later:
 
 ```bash
 npm run report         # or: npx playwright show-report
 ```
+
+(Auto-open is skipped on CI; set `PWTEST_OPEN=never` to skip it locally too.)
 
 ## Environment variables
 

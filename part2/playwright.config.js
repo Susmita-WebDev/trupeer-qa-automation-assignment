@@ -18,7 +18,16 @@ export default defineConfig({
 
   reporter: [
     ['list'],
-    ['html', { open: 'never', outputFolder: 'playwright-report' }],
+    // Auto-open the HTML report in the browser when the run finishes, so a
+    // reviewer sees results without having to run `show-report`. Suppressed on
+    // CI (no browser there); set PWTEST_OPEN=never to opt out locally too.
+    [
+      'html',
+      {
+        open: process.env.CI || process.env.PWTEST_OPEN === 'never' ? 'never' : 'always',
+        outputFolder: 'playwright-report',
+      },
+    ],
     ['json', { outputFile: 'test-results/results.json' }],
   ],
 
