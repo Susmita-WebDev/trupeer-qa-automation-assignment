@@ -1,55 +1,46 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import { chromium } from '@playwright/test';
 import { config } from './config.js';
 // Part 3 reuses Part 2's page objects rather than reimplementing the flows.
 import { env } from '../../part2/src/config/env.js';
 import { DashboardPage } from '../../part2/src/pages/DashboardPage.js';
 import { LoginPage } from '../../part2/src/pages/LoginPage.js';
+
 /**
  * Drives Trupeer through Playwright and captures script rewrites.
  *
- * A note on baselines: Trupeer edits the script in place, and the free tier does
- * not expose a reliable "revert to original" control. So each prompt is graded
- * against the script *as it stood immediately before that prompt*, not against
- * the very first version. That is the honest comparison - the judge is asked
- * "did this edit do what was asked?", and chaining edits does not invalidate
- * that question. The true original is still recorded in the report so a human
- * can see how far the script drifted over the run.
+ * Each prompt is graded against the SAME pristine script. Before every prompt the
+ * session discards any pending change and reloads, resetting the editor to the
+ * original transcript. That makes each prompt an independent, fair test of "did
+ * this instruction produce a good rewrite of the original?", rather than grading
+ * a script that has drifted through earlier edits.
  */
 export class TrupeerSession {
   browser;
+  context;
   page;
   editor;
 
   /** The script as it was before the run touched anything. */
   pristineScript = '';
+
   async start() {
-    if (!fs.existsSync(env.storageStatePath)) {
-      throw new Error(
-        `No saved Trupeer session at ${env.storageStatePath}.\n` +
-          'Run `npm run auth` in part2/ first - see part2/README.md → Authentication.',
-      );
-    }
-    this.browser = await chromium.launch({
-      headless: !config.headed,
-    });
-    const context = await this.browser.newContext({
+    fs.mkdirSync(path.dirname(env.storageStatePath), { recursive: true });
+    await this.#ensureSession();
+
+    this.browser = await chromium.launch({ headless: !config.headed });
+    this.context = await this.browser.newContext({
+      baseURL: env.baseURL,
       storageState: env.storageStatePath,
-      viewport: {
-        width: 1600,
-        height: 900,
-      },
+      viewport: { width: 1600, height: 900 },
     });
-    this.page = await context.newPage();
+    this.page = await this.context.newPage();
+
     const dashboard = new DashboardPage(this.page);
     await dashboard.open();
-    const login = new LoginPage(this.page);
-    if (await login.isDisplayed(3_000)) {
-      throw new Error(
-        'The saved Trupeer session has expired - re-run `npm run auth` in part2/.',
-      );
-    }
     this.editor = await dashboard.openVideo(env.videoName || undefined);
+
     this.pristineScript = await this.editor.getScriptText();
     if (this.pristineScript.length < 20) {
       throw new Error(
@@ -59,19 +50,20 @@ export class TrupeerSession {
     }
   }
 
-  /** Runs one prompt and returns the before/after pair. */
+  /** Runs one prompt against the pristine script and returns the before/after pair. */
   async runPrompt(prompt) {
     if (!this.editor || !this.page) {
       throw new Error('TrupeerSession.start() must be called before runPrompt().');
     }
 
-    // Reload between prompts so each starts from a clean editor state - a stale
-    // dialog or in-flight request from the previous prompt would otherwise leak
-    // into this one and produce a result nobody can interpret.
-    await this.page.reload({
-      waitUntil: 'domcontentloaded',
-    });
+    // Reset to the original script: discard any pending change from the previous
+    // prompt, then reload so no stale dialog or in-flight request leaks in.
+    if (await this.editor.discardChangesButton.isVisible(2_000)) {
+      await (await this.editor.discardChangesButton.visible()).click();
+    }
+    await this.page.reload({ waitUntil: 'domcontentloaded' });
     await this.editor.waitForLoaded();
+
     const result = await this.editor.modifyScriptWithAi(prompt);
     return {
       original: result.original,
@@ -79,7 +71,60 @@ export class TrupeerSession {
       durationMs: result.durationMs,
     };
   }
+
   async stop() {
     await this.browser?.close();
+  }
+
+  // --- Auth -----------------------------------------------------------------
+  // Mirrors Part 2's setup: reuse a valid saved session, else log in (headed,
+  // because Trupeer blocks headless sign-in) when password credentials exist.
+
+  async #ensureSession() {
+    if (fs.existsSync(env.storageStatePath) && (await this.#savedSessionWorks())) return;
+
+    if (env.authMode !== 'password') {
+      throw new Error(
+        `No valid Trupeer session and AUTH_MODE is "${env.authMode}". Run ` +
+          '`npm run auth` in part2/ first, or set AUTH_MODE=password with ' +
+          'TRUPEER_EMAIL / TRUPEER_PASSWORD in part2/.env.',
+      );
+    }
+
+    const browser = await chromium.launch({ headless: false });
+    try {
+      const context = await browser.newContext({
+        baseURL: env.baseURL,
+        viewport: { width: 1600, height: 900 },
+      });
+      const page = await context.newPage();
+      const login = new LoginPage(page);
+      await login.open();
+      await login.signIn(env.email, env.password);
+      await new DashboardPage(page).waitForAppReady();
+      if (await login.isDisplayed(4_000)) {
+        throw new Error('Sign-in failed - check TRUPEER_EMAIL / TRUPEER_PASSWORD.');
+      }
+      await context.storageState({ path: env.storageStatePath });
+    } finally {
+      await browser.close();
+    }
+  }
+
+  async #savedSessionWorks() {
+    const browser = await chromium.launch();
+    try {
+      const context = await browser.newContext({
+        baseURL: env.baseURL,
+        storageState: env.storageStatePath,
+      });
+      const page = await context.newPage();
+      await new DashboardPage(page).open();
+      return !(await new LoginPage(page).isDisplayed(4_000));
+    } catch {
+      return false;
+    } finally {
+      await browser.close();
+    }
   }
 }

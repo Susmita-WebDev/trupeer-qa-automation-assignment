@@ -66,8 +66,9 @@ export function summarise(results, startedAt) {
     graded.length === 0 ? 0 : graded.reduce((sum, r) => sum + r.score, 0) / graded.length;
   return {
     startedAt: startedAt.toISOString(),
-    model: config.judgeModel,
-    effort: config.judgeEffort,
+    provider: config.primaryProvider,
+    model: config.activeModel,
+    effort: config.primaryProvider === 'anthropic' ? config.judgeEffort : null,
     confidenceThreshold: config.confidenceThreshold,
     results,
     totals,
@@ -89,7 +90,9 @@ export function printToConsole(summary) {
   console.log('  Modify Script with AI - validation results');
   console.log('='.repeat(78));
   console.log(
-    `  Judge: ${summary.model} (effort: ${summary.effort})   ` +
+    `  Judge: ${summary.provider} / ${summary.model}` +
+      (summary.effort ? ` (effort: ${summary.effort})` : '') +
+      `   ` +
       `Confidence threshold: ${summary.confidenceThreshold}`,
   );
   console.log('-'.repeat(78));
@@ -158,7 +161,8 @@ function toMarkdown(summary) {
     '# Modify Script with AI - validation run',
     '',
     `- **Run at:** ${summary.startedAt}`,
-    `- **Judge:** \`${summary.model}\` (effort: ${summary.effort})`,
+    `- **Judge:** ${summary.provider} / \`${summary.model}\`` +
+      (summary.effort ? ` (effort: ${summary.effort})` : ''),
     `- **Confidence threshold:** ${summary.confidenceThreshold}`,
     `- **Result:** ${summary.totals.PASS} passed, ${summary.totals.FAIL} failed, ` +
       `${summary.totals['NEEDS REVIEW']} need review, ${summary.totals.ERROR} errored`,

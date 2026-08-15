@@ -14,24 +14,32 @@ asked.
 ```bash
 # Part 2 first - Part 3 reuses its page objects and its saved session.
 cd ../part2 && npm install && npx playwright install chromium
-cp .env.example .env && npm run auth
+cp .env.example .env      # set the Trupeer credentials here
 
 cd ../part3
 npm install
-cp .env.example .env      # add ANTHROPIC_API_KEY
+cp .env.example .env      # add a GEMINI_API_KEY (free) or an ANTHROPIC_API_KEY
 npm run validate
 ```
+
+Part 3 signs into Trupeer itself if there is no saved session, so you do not have
+to run Part 2 first - the two just share the same credentials in `part2/.env`.
 
 ## Environment variables
 
 Trupeer credentials come from `part2/.env` (Part 3 loads it automatically).
-`part3/.env` adds only the judge's configuration:
+`part3/.env` adds only the judge's configuration. The judge needs **at least one**
+API key; it tries providers in order and uses the first that works, so if one
+provider is unavailable it falls back to the other.
 
 | Variable | Required | Purpose |
 | :--- | :--- | :--- |
-| `ANTHROPIC_API_KEY` | yes | Judge API key. |
-| `JUDGE_MODEL` | no | Defaults to `claude-opus-5`. |
-| `JUDGE_EFFORT` | no | `low`–`max`. Defaults to `high`. |
+| `GEMINI_API_KEY` | one of the two | Free judge key: [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey). |
+| `ANTHROPIC_API_KEY` | one of the two | Judge key (needs a small credit balance). |
+| `JUDGE_PROVIDER` | no | Force `gemini` or `anthropic`. Otherwise the `anthropic` key is preferred, `gemini` is the fallback. |
+| `GEMINI_MODEL` | no | Defaults to `gemini-2.5-flash`. |
+| `JUDGE_MODEL` | no | `anthropic` model. Defaults to `claude-opus-5`. |
+| `JUDGE_EFFORT` | no | `anthropic` only. `low`–`max`. Defaults to `high`. |
 | `CONFIDENCE_THRESHOLD` | no | Below this, a verdict is advisory. Defaults to `0.75`. |
 | `RESULTS_DIR` | no | Defaults to `results/`. |
 | `HEADED` | no | `1` to watch the browser. |
