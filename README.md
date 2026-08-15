@@ -37,7 +37,7 @@ classifies each check as **stable / regression / fixed / suspicious-pass / new-b
 explains regressions from an evidence diff, routes model work by cost (a strong model
 for judgment, Gemini Flash for cheap vision), runs read-only security probes, and emits
 a self-contained HTML report that opens automatically. The rationale is in
-[`PLAN.md`](PLAN.md).
+[`docs/PLAN.md`](docs/PLAN.md).
 
 ## How it fits together
 

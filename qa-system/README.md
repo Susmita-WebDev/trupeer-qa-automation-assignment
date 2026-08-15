@@ -4,8 +4,8 @@ This is the layer that ties Parts 1 to 3 together and makes the submission stand
 out. A normal suite answers "did the assertions pass today". This one answers
 "what changed since last time, is it a fix or a regression, and why".
 
-The full rationale, research, and phased plan are in the repo-root
-[`PLAN.md`](../PLAN.md). This README is how to run it.
+The full rationale, research, and phased plan are in
+[`docs/PLAN.md`](../docs/PLAN.md). This README is how to run it.
 
 ## What it does
 
