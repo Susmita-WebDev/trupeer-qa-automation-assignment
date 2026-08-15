@@ -6,41 +6,30 @@ export class DashboardPage extends BasePage {
   constructor(page) {
     super(page);
   }
-  heading = this.flexible('dashboard heading', [
-    (p) =>
-      p.getByRole('heading', {
-        name: /projects|videos|dashboard|home|library/i,
-      }),
+  // Trupeer has no page heading; the sidebar nav and the "Create new" button are
+  // the reliable "this is the dashboard" landmarks.
+  heading = this.flexible('dashboard landmark', [
+    (p) => p.getByRole('link', { name: 'Library' }),
+    (p) => p.getByRole('button', { name: /create new/i }),
     (p) => p.locator('h1, h2').first(),
   ]);
   userMenu = this.flexible('account menu', [
-    (p) =>
-      p.getByRole('button', {
-        name: /account|profile|settings|avatar/i,
-      }),
-    (p) => p.locator('[class*="avatar" i]'),
-    (p) => p.locator('img[alt*="avatar" i], img[alt*="profile" i]'),
+    (p) => p.getByRole('button', { name: /account and settings/i }),
+    (p) => p.getByRole('button', { name: /free trial|account|profile|settings/i }),
   ]);
   newRecordingButton = this.flexible('new recording button', [
-    (p) =>
-      p.getByRole('button', {
-        name: /new|record|create|upload/i,
-      }),
-    (p) =>
-      p.getByRole('link', {
-        name: /new|record|create|upload/i,
-      }),
+    (p) => p.getByRole('button', { name: /create new/i }),
+    (p) => p.getByRole('button', { name: /start recording|upload videos/i }),
   ]);
 
-  /** Every clickable video card / row on the dashboard. */
+  /** Every clickable video tile on the dashboard (Trupeer renders them as
+   *  `<a role="button">`, not links with hrefs). */
   videoCards() {
     return this.page.locator(
       [
+        'a[role="button"][class*="cursor-pointer"]',
+        'a[href*="/content/"]',
         '[data-testid*="video" i]',
-        '[data-testid*="project" i]',
-        'a[href*="/edit"]',
-        'a[href*="/video"]',
-        'a[href*="/project"]',
       ].join(', '),
     );
   }
@@ -66,12 +55,11 @@ export class DashboardPage extends BasePage {
    */
   async openVideo(name) {
     await this.waitForAppReady();
+    // The video tile is an `<a role="button">` whose accessible name includes
+    // the title, so match the button by (substring) name. getByRole name
+    // matching is case-insensitive substring by default.
     const target = name
-      ? this.page
-          .getByText(name, {
-            exact: false,
-          })
-          .first()
+      ? this.page.getByRole('button', { name }).first()
       : this.videoCards().first();
     await target.waitFor({
       state: 'visible',

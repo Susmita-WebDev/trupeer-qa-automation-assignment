@@ -12,32 +12,22 @@ export class LoginPage extends BasePage {
     super(page);
   }
   emailInput = this.flexible('email input', [
-    (p) =>
-      p.getByRole('textbox', {
-        name: /email/i,
-      }),
-    (p) => p.getByPlaceholder(/email/i),
+    (p) => p.getByRole('textbox', { name: 'Email', exact: true }),
+    (p) => p.getByLabel('Email', { exact: true }),
+    (p) => p.getByPlaceholder(/your email/i),
     (p) => p.locator('input[type="email"]'),
-    (p) => p.locator('input[name="email"]'),
   ]);
   passwordInput = this.flexible('password input', [
-    (p) =>
-      p.getByRole('textbox', {
-        name: /password/i,
-      }),
-    (p) => p.getByPlaceholder(/password/i),
+    // A password input is not exposed as a "textbox" role, so match by label.
+    (p) => p.getByLabel('Password', { exact: true }),
+    (p) => p.getByPlaceholder(/^password$/i),
     (p) => p.locator('input[type="password"]'),
   ]);
   submitButton = this.flexible('sign in button', [
-    (p) =>
-      p.getByRole('button', {
-        name: /^(sign in|log ?in|continue)$/i,
-      }),
-    (p) =>
-      p.getByRole('button', {
-        name: /sign in|log ?in/i,
-      }),
+    // Exact "Continue" so it never grabs the "Continue with Google" button.
+    (p) => p.getByRole('button', { name: 'Continue', exact: true }),
     (p) => p.locator('button[type="submit"]'),
+    (p) => p.getByRole('button', { name: /^(sign in|log ?in)$/i }),
   ]);
   errorMessage = this.flexible('login error message', [
     (p) => p.getByRole('alert'),
@@ -45,7 +35,9 @@ export class LoginPage extends BasePage {
     (p) => p.locator('[class*="error" i]'),
   ]);
   async open() {
-    await this.goto('/');
+    // The real login route on Trupeer. Falls back to the app root if the app
+    // redirects unauthenticated users there anyway.
+    await this.goto('/auth?tab=login');
     await this.waitForAppReady();
   }
   async signIn(email, password) {

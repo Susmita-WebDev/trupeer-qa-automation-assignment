@@ -10,6 +10,7 @@
     "test:ui": "playwright test --ui",
     "auth": "node scripts/capture-auth.js",
     "discover": "node scripts/discover.js",
+    "snapshot": "node scripts/snapshot.js",
     "report": "playwright show-report"
   },
   "devDependencies": {

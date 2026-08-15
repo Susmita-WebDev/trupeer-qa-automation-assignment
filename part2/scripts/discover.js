@@ -27,6 +27,7 @@ async function main() {
     headless: !env.headed,
   });
   const context = await browser.newContext({
+    baseURL: env.baseURL,
     storageState: env.storageStatePath,
     viewport: {
       width: 1600,

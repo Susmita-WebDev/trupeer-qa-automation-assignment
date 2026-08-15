@@ -22,6 +22,11 @@ test.describe('Modify Script with AI', () => {
     console.log(
       `AI round trip: ${durationMs}ms, ${original.length} -> ${modified.length} characters`,
     );
+
+    // Restore the video so repeated runs start from the same script.
+    if (await loadedEditor.discardChangesButton.isVisible(3_000)) {
+      await (await loadedEditor.discardChangesButton.visible()).click();
+    }
   });
   test('the prompt dialog opens and exposes an input and a submit control', async ({
     loadedEditor,

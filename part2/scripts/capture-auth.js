@@ -24,6 +24,7 @@ async function main() {
     headless: false,
   });
   const context = await browser.newContext({
+    baseURL: env.baseURL,
     viewport: {
       width: 1600,
       height: 900,
@@ -32,13 +33,12 @@ async function main() {
   const page = await context.newPage();
   const login = new LoginPage(page);
   const dashboard = new DashboardPage(page);
-  await page.goto(env.baseURL, {
-    waitUntil: 'domcontentloaded',
-  });
   if (env.authMode === 'password') {
     console.log('[auth] Signing in with email and password...');
+    await login.open();
     await login.signIn(env.email, env.password);
   } else {
+    await page.goto(env.baseURL, { waitUntil: 'domcontentloaded' });
     console.log(
       '\n[auth] Manual mode.\n' +
         '       1. Sign in to Trupeer in the browser window that just opened.\n' +

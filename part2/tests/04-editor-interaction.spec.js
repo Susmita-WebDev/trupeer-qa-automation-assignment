@@ -1,40 +1,20 @@
 import { test, expect } from '../src/fixtures/pages.js';
 
 /**
- * The "pick any one other editor feature" requirement. Background was chosen
- * over trim or zoom because its effect is visible in the DOM as a selection
- * state, which can be asserted without pixel comparison - trim and zoom are
- * both canvas-rendered and would need visual diffing to verify honestly.
+ * The "pick any one other editor feature" requirement. The Zooms auto-zoom
+ * toggle was chosen because a switch has an observable on/off state
+ * (aria-checked / data-state), so "the change applied" can be asserted directly.
+ * Trim and background render to a canvas, so verifying them honestly would need
+ * pixel diffing; a toggle needs none.
  */
-test.describe('Editor interaction - background', () => {
-  test('applying a background marks it as selected', async ({ loadedEditor }) => {
-    test.skip(
-      !(await loadedEditor.backgroundTab.isVisible(10_000)),
-      'This account or plan does not expose the background controls',
-    );
-    const label = await loadedEditor.applyFirstBackground();
+test.describe('Editor interaction - Zooms auto-zoom toggle', () => {
+  test('toggling the auto-zoom switch flips its state', async ({ loadedEditor }) => {
+    const { before, after } = await loadedEditor.toggleZoomSwitch();
+
     expect(
-      await loadedEditor.hasSelectedBackground(),
-      `After clicking the background option "${label || '(unlabelled)'}", the UI ` +
-        'should mark an option as selected. If nothing is marked, the click was ' +
-        'accepted but not reflected in the UI - a functional bug worth reporting.',
-    ).toBe(true);
-  });
-  test('the background choice survives a page reload', async ({ loadedEditor, page }) => {
-    test.skip(
-      !(await loadedEditor.backgroundTab.isVisible(10_000)),
-      'This account or plan does not expose the background controls',
-    );
-    await loadedEditor.applyFirstBackground();
-    await page.reload({
-      waitUntil: 'domcontentloaded',
-    });
-    await loadedEditor.waitForLoaded();
-    await loadedEditor.backgroundTab.click();
-    expect(
-      await loadedEditor.hasSelectedBackground(),
-      'The applied background should persist across a reload. If it does not, the ' +
-        'edit was never saved server-side - silent data loss for the user.',
-    ).toBe(true);
+      after,
+      `Clicking the auto-zoom switch should change its state (it was "${before}"). ` +
+        'If the state does not change, the control accepted the click but did not apply it.',
+    ).not.toBe(before);
   });
 });

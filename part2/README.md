@@ -3,15 +3,28 @@
 A Playwright + JavaScript suite covering login, the video editor, "Modify Script
 with AI", and one further editor feature, plus negative cases.
 
-## Setup
+## Setup (clone and run)
 
 ```bash
 npm install
 npx playwright install chromium
-cp .env.example .env      # then fill it in
-npm run auth              # one-time sign-in capture
-npx playwright test
+cp .env.example .env      # then fill in credentials (see below)
+npx playwright test       # one command: signs in, then runs everything
 ```
+
+That single `npx playwright test` works because a **setup project** signs in
+first, using the credentials in `.env`, and every test reuses that session. No
+separate step, no secrets in the code. Set these two in `.env`:
+
+```
+AUTH_MODE=password
+TRUPEER_EMAIL=the-test-account@example.com
+TRUPEER_PASSWORD=the-test-account-password
+```
+
+If the account is behind Google SSO instead (which cannot be automated safely),
+use `AUTH_MODE=manual` and run `npm run auth` once to sign in by hand before
+`npx playwright test`. See [Authentication](#authentication).
 
 ## Environment variables
 
@@ -30,31 +43,35 @@ All configuration is read from `.env` (gitignored). Nothing is hardcoded.
 
 ## Authentication
 
-Trupeer's sign-in can go through a third-party identity provider. Driving Google
-SSO from an automated browser is unreliable and, on a real account, arguably
-something a test should not be doing at all. So the suite separates *acquiring* a
-session from *using* one:
+Sign-in runs once, in a **setup project** (`tests/auth.setup.js`) that the test
+project declares as a dependency. It produces a saved session
+(`.auth/user.json`, gitignored) that every test reuses, so tests start already
+signed in and no credentials appear in any test body.
 
-- **`AUTH_MODE=password`** - `npm run auth` fills the sign-in form from the env
-  vars. Use this if the account has a Trupeer-native password.
-- **`AUTH_MODE=manual`** - `npm run auth` opens a visible browser, you sign in
-  however the account requires, and press Enter. The session is then saved.
+Two modes, chosen by `AUTH_MODE`:
 
-Either way the cookies and local storage land in `.auth/user.json`, which
-`playwright.config.js` loads as `storageState`. Every test therefore starts
-already signed in - faster, and no credentials touch the test bodies.
+- **`password` (clone-and-run):** the setup logs in through the sign-in form
+  using `TRUPEER_EMAIL` / `TRUPEER_PASSWORD`, then saves the session. A reviewer
+  sets those two env vars and runs `npx playwright test` - nothing else. This is
+  the intended path for someone cloning the repo.
+- **`manual` (SSO fallback):** for accounts behind Google SSO or a magic link,
+  which cannot be driven from a test. Run `npm run auth` once - a browser opens,
+  you sign in by hand, press Enter, and the session is saved. Then
+  `npx playwright test` reuses it. The setup step verifies the saved session
+  exists and fails with a clear message if it does not.
 
-When the session expires, tests fail with an explicit message telling you to
-re-run `npm run auth` rather than an opaque selector timeout.
+Credentials are read only from `.env` (gitignored). To let someone else run the
+suite, share the **test account's** credentials with them out of band (they put
+them in their own `.env`); never commit them.
 
 ## Selector strategy
 
 No test file contains a selector. Every element lives in a page object under
 `src/pages/` and is declared as an **ordered list of candidate strategies**:
 
-```ts
-readonly modifyScriptButton = this.flexible('Modify Script with AI button', [
-  (p) => p.getByRole('button', { name: /modify script with ai/i }),  // accessible role
+```js
+this.modifyScriptButton = this.flexible('Modify Script with AI button', [
+  (p) => p.getByRole('button', { name: /modify script with ai/i }),   // accessible role
   (p) => p.getByRole('button', { name: /modify.*script|ai.*script/i }), // looser role
   (p) => p.getByText(/modify script with ai/i),                       // visible text
 ]);

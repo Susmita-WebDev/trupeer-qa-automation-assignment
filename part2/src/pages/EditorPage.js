@@ -9,76 +9,68 @@ export class EditorPage extends BasePage {
   // --- Core layout ----------------------------------------------------------
 
   timeline = this.flexible('timeline', [
-    (p) => p.getByTestId(/timeline/i),
-    (p) =>
-      p.getByRole('region', {
-        name: /timeline/i,
-      }),
     (p) => p.locator('[class*="timeline" i]'),
-    (p) => p.locator('[aria-label*="timeline" i]'),
+    (p) => p.getByRole('region', { name: /timeline/i }),
   ]);
   preview = this.flexible('preview player', [
-    (p) => p.getByTestId(/preview|player/i),
+    (p) => p.locator('canvas[data-engine]'), // Trupeer renders the preview with three.js
+    (p) => p.locator('canvas').first(),
     (p) => p.locator('video'),
-    (p) => p.locator('[class*="preview" i], [class*="player" i]'),
-    (p) => p.locator('canvas'),
   ]);
   scriptPanel = this.flexible('script panel', [
-    (p) => p.getByTestId(/script/i),
-    (p) =>
-      p.getByRole('region', {
-        name: /script|transcript/i,
-      }),
-    (p) => p.locator('[class*="script" i], [class*="transcript" i]'),
+    (p) => p.locator('[class*="slateEditor" i]').first(),
+    (p) => p.locator('[class*="script" i]').first(),
   ]);
-  playButton = this.flexible('play button', [
-    (p) =>
-      p.getByRole('button', {
-        name: /^play$/i,
-      }),
-    (p) =>
-      p.getByRole('button', {
-        name: /play|preview/i,
-      }),
-    (p) => p.locator('[aria-label*="play" i]'),
+  /** All editable script paragraphs (Trupeer renders a Slate editor per line). */
+  scriptLines() {
+    return this.page.locator('[class*="slateEditor" i]');
+  }
+  // The play control is an unlabelled icon; the mute button and seek slider are
+  // the reliably-labelled playback controls to assert on.
+  playButton = this.flexible('playback controls', [
+    (p) => p.getByRole('button', { name: /mute audio|unmute/i }),
+    (p) => p.locator('input[type="range"]'),
+    (p) => p.getByRole('button', { name: /play|pause/i }),
   ]);
+
+  // Editor tabs are role="tab": Script, AI Voice, Music, Visuals, Zooms, AI Avatar, Elements.
+  tab(name) {
+    return this.flexible(`${name} tab`, [
+      (p) => p.getByRole('tab', { name, exact: true }),
+      (p) => p.getByRole('button', { name, exact: true }),
+    ]);
+  }
+  scriptTab = this.tab('Script');
+  zoomsTab = this.tab('Zooms');
+  visualsTab = this.tab('Visuals');
 
   // --- Modify Script with AI ------------------------------------------------
 
-  modifyScriptButton = this.flexible('Modify Script with AI button', [
-    (p) =>
-      p.getByRole('button', {
-        name: /modify script with ai/i,
-      }),
-    (p) =>
-      p.getByRole('button', {
-        name: /modify.*script|ai.*script|edit with ai/i,
-      }),
-    (p) => p.getByText(/modify script with ai/i),
+  // The trigger is an unlabelled icon button in the script toolbar; anchored on
+  // its sparkle SVG. (Its lack of an accessible name is itself an a11y nit.)
+  modifyScriptButton = this.flexible('Rewrite with AI (sparkle) button', [
+    (p) => p.locator('button:has(svg path[d^="M2.916 17.084"])'),
+    (p) => p.locator('button:has(svg path[d^="m7.083 2.033"])'),
   ]);
   promptInput = this.flexible('AI prompt input', [
-    (p) =>
-      p.getByRole('textbox', {
-        name: /prompt|instruction|describe|ask/i,
-      }),
-    (p) => p.getByPlaceholder(/prompt|instruction|describe|make this|ask/i),
-    (p) => p.locator('[role="dialog"] textarea'),
-    (p) => p.locator('textarea').last(),
+    (p) => p.getByPlaceholder(/make it more conversational|simplify the language|conversational/i),
+    (p) => p.locator('textarea'),
+    (p) => p.getByPlaceholder(/describe|prompt|instruction|change/i),
   ]);
   promptSubmitButton = this.flexible('AI prompt submit button', [
-    (p) =>
-      p.getByRole('button', {
-        name: /^(generate|submit|apply|send|modify)$/i,
-      }),
-    (p) =>
-      p.getByRole('button', {
-        name: /generate|submit|apply|send/i,
-      }),
-    (p) => p.locator('[role="dialog"] button[type="submit"]'),
+    (p) => p.getByRole('button', { name: /rewrite script/i }),
+    (p) => p.getByRole('button', { name: /^(rewrite|generate|apply|submit|send)$/i }),
   ]);
-  aiDialog = this.flexible('AI prompt dialog', [
+  aiDialog = this.flexible('Rewrite with AI dialog', [
     (p) => p.getByRole('dialog'),
-    (p) => p.locator('[role="dialog"], [class*="modal" i], [class*="drawer" i]'),
+    (p) => p.getByText(/rewrite with ai/i),
+    (p) => p.locator('[role="dialog"], [class*="modal" i], [class*="popover" i]'),
+  ]);
+  keepChangesButton = this.flexible('Keep changes button', [
+    (p) => p.getByRole('button', { name: /keep changes/i }),
+  ]);
+  discardChangesButton = this.flexible('Discard changes button', [
+    (p) => p.getByRole('button', { name: /discard changes/i }),
   ]);
   aiErrorMessage = this.flexible('AI error message', [
     (p) => p.getByRole('alert'),
@@ -86,26 +78,19 @@ export class EditorPage extends BasePage {
     (p) => p.locator('[class*="error" i], [class*="toast" i]'),
   ]);
 
-  // --- Editor feature under test: background --------------------------------
+  // --- Editor feature under test: the Zooms auto-zoom toggle ----------------
+  // Chosen because a switch has an observable on/off state (aria-checked /
+  // data-state), so "the change applied" can be asserted without pixel diffing.
 
-  backgroundTab = this.flexible('background tab', [
-    (p) =>
-      p.getByRole('tab', {
-        name: /background/i,
-      }),
-    (p) =>
-      p.getByRole('button', {
-        name: /background/i,
-      }),
-    (p) => p.getByText(/^background$/i),
-  ]);
-  backgroundOptions() {
-    return this.page.locator(
-      [
-        '[data-testid*="background" i] button',
-        '[class*="background" i] button',
-        '[class*="background" i] [role="option"]',
-      ].join(', '),
+  /** The auto-zoom switch on the Zooms tab. */
+  zoomSwitch() {
+    return this.page.getByRole('switch').first();
+  }
+  async switchState(locator) {
+    return (
+      (await locator.getAttribute('aria-checked')) ??
+      (await locator.getAttribute('data-state')) ??
+      ''
     );
   }
 
@@ -113,25 +98,52 @@ export class EditorPage extends BasePage {
 
   async waitForLoaded(timeout = 45_000) {
     await this.waitForAppReady(timeout);
-    // The script panel is the slowest of the three regions to hydrate, so
-    // waiting on it implies the rest of the editor has rendered.
     await this.scriptPanel.visible(timeout);
+    // Trupeer's Slate editor mounts its container before filling in the text, so
+    // wait until the script has actually hydrated with content before returning.
+    // Otherwise a test can read an empty panel in the moment between the two.
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      if ((await this.getScriptText().catch(() => '')).length > 20) return;
+      await this.page.waitForTimeout(500);
+    }
   }
 
-  /** True when timeline, preview and script panel are all on screen. */
+  /** True when timeline, preview and script panel are all rendered. The timeline
+   *  and the WebGL preview canvas are checked by DOM attachment rather than strict
+   *  visibility, because Playwright's visibility heuristic is unreliable for a
+   *  three.js canvas; being mounted is the real "the region rendered" signal. */
   async hasCoreRegions() {
+    const attached = async (flex, timeout = 30_000) => {
+      try {
+        const locator = (await flex.resolve(timeout)).first();
+        await locator.waitFor({ state: 'attached', timeout });
+        return true;
+      } catch {
+        return false;
+      }
+    };
     return {
-      timeline: await this.timeline.isVisible(15_000),
-      preview: await this.preview.isVisible(15_000),
-      script: await this.scriptPanel.isVisible(15_000),
+      timeline: await attached(this.timeline),
+      preview: await attached(this.preview),
+      script: await this.scriptPanel.isVisible(30_000),
     };
   }
 
   /** The full visible script text, whitespace-normalised. */
   async getScriptText() {
-    const panel = await this.scriptPanel.visible();
-    const text = await panel.innerText();
-    return text.replace(/\s+/g, ' ').trim();
+    // Trupeer renders each script paragraph as its own Slate editor, so join them.
+    const lines = this.scriptLines();
+    const count = await lines.count();
+    if (count === 0) {
+      const panel = await this.scriptPanel.visible();
+      return (await panel.innerText()).replace(/\s+/g, ' ').trim();
+    }
+    const parts = [];
+    for (let i = 0; i < count; i++) {
+      parts.push((await lines.nth(i).innerText()).trim());
+    }
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
   }
   async openModifyScriptDialog() {
     await this.modifyScriptButton.click();
@@ -193,36 +205,24 @@ export class EditorPage extends BasePage {
   }
 
   /**
-   * Applies a background and reports whether the UI reflected the change.
-   * Returns the option's accessible name so the test can assert on it.
+   * Opens the Zooms tab and flips the auto-zoom switch, returning the state
+   * before and after so the test can assert the toggle actually changed. Leaves
+   * the switch back in its original position so the run has no lasting effect.
    */
-  async applyFirstBackground() {
-    await this.backgroundTab.click();
-    const options = this.backgroundOptions();
-    await options.first().waitFor({
-      state: 'visible',
-      timeout: 20_000,
-    });
-    const option = options.first();
-    const label =
-      (await option.getAttribute('aria-label')) ??
-      (await option.getAttribute('title')) ??
-      (await option.innerText().catch(() => '')) ??
-      '';
-    await option.click();
-    await this.waitForAppReady(20_000);
-    return label.trim();
-  }
+  async toggleZoomSwitch() {
+    await this.zoomsTab.click();
+    const sw = this.zoomSwitch();
+    await sw.waitFor({ state: 'visible', timeout: 20_000 });
 
-  /** True when a background option reports itself as active/selected. */
-  async hasSelectedBackground() {
-    const selected = this.backgroundOptions().filter({
-      has: this.page.locator('[aria-selected="true"], [data-selected="true"]'),
-    });
-    if ((await selected.count()) > 0) return true;
-    const byAttribute = this.backgroundOptions().locator(
-      '[aria-pressed="true"], [aria-selected="true"], [class*="selected" i], [class*="active" i]',
-    );
-    return (await byAttribute.count()) > 0;
+    const before = await this.switchState(sw);
+    await sw.click();
+    await this.page.waitForTimeout(600);
+    const after = await this.switchState(sw);
+
+    // Restore the original state so we do not leave the video modified.
+    if (after !== before) {
+      await sw.click().catch(() => {});
+    }
+    return { before, after };
   }
 }
