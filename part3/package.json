@@ -1,0 +1,20 @@
+{
+  "name": "trupeer-ai-validation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "LLM-as-judge validation harness for Trupeer's Modify Script with AI",
+  "scripts": {
+    "validate": "node validate.js",
+    "validate:headed": "cross-env HEADED=1 node validate.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7"
+  }
+}
