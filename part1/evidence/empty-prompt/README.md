@@ -1,6 +1,12 @@
 # Evidence: BUG-2 - whitespace-only prompt is accepted and rewrites the script
 
-- `before.png` - the "Rewrite with AI" box with only whitespace typed, the
-  character counter reading 16/300, and the **Rewrite script** button enabled.
-- `after.png` - the script fully rewritten, with the **Keep changes /
-  Discard changes** bar shown.
+A prompt of only spaces (16/300 characters) is accepted, and the AI rewrites the
+whole script instead of rejecting the empty instruction.
+
+## Before - whitespace typed, Rewrite button enabled
+
+![Rewrite with AI box with only whitespace typed, the counter reading 16/300, and the Rewrite script button enabled](before.png)
+
+## After - the script is rewritten anyway
+
+![The script fully rewritten, with the Keep changes / Discard changes bar shown](after.png)
