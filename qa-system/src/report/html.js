@@ -163,11 +163,81 @@ function detailTable(results, category) {
   if (!rows) return '';
   return `<table><thead><tr><th>Result</th><th>Check</th><th>Expected</th><th>Observed</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
+function isFailing(result) {
+  return result.outcome === 'fail' || result.outcome === 'error';
+}
+/**
+ * Every failing check across every area, ranked by severity. This is the flat
+ * "what is broken right now, worst first" view, independent of the memory
+ * lens below: a reader who only wants the severity picture gets it in one place.
+ */
+function priorityFindings(results) {
+  const fails = results
+    .filter(isFailing)
+    .sort(
+      (a, b) => SEVERITY_ORDER.indexOf(a.severity) - SEVERITY_ORDER.indexOf(b.severity),
+    );
+  if (fails.length === 0) {
+    return `<p class="note">No failing checks this run.</p>`;
+  }
+  const rows = fails
+    .map(
+      (r) => `<tr class="sev-${r.severity}">
+        <td><span class="badge sev-${r.severity}">${r.severity}</span></td>
+        <td>${esc(r.title)}</td>
+        <td>${r.category}</td>
+        <td>${esc(r.actual)}</td>
+      </tr>`,
+    )
+    .join('');
+  return `<table><thead><tr><th>Severity</th><th>Finding</th><th>Area</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+/**
+ * Uncertain results, kept apart from confirmed bugs on purpose: a suspicious
+ * pass (green only because its target vanished) and a low-confidence AI verdict
+ * are things a human should look at, not things to trust or to gate a build on.
+ */
+function needsReview(input) {
+  const suspicious = input.comparison.entries
+    .filter((e) => e.classification === 'suspicious-pass')
+    .map(comparedCard)
+    .join('');
+  const lowConfidence = input.snapshot.results
+    .filter((r) => typeof r.confidence === 'number' && r.confidence < 0.75)
+    .map(
+      (r) => `<article class="card">
+        <header>${outcomeBadge(r)}<span class="title">${esc(r.title)}</span>
+          <span class="cat">low confidence ${r.confidence.toFixed(2)}</span></header>
+        <p class="kv"><b>Observed:</b> ${esc(r.actual)}</p>
+        ${r.message ? `<p class="kv">${esc(r.message)}</p>` : ''}
+      </article>`,
+    )
+    .join('');
+  return suspicious + lowConfidence;
+}
+/** What was actually exercised this run, by area. Transparency about scope. */
+function coverage(results) {
+  const categories = ['functional', 'performance', 'visual', 'security', 'ai-validation'];
+  const rows = categories
+    .map((cat) => {
+      const rs = results.filter((r) => r.category === cat);
+      if (rs.length === 0) return '';
+      const passed = rs.filter((r) => r.outcome === 'pass').length;
+      const failed = rs.filter(isFailing).length;
+      const skipped = rs.filter((r) => r.outcome === 'skipped').length;
+      return `<tr><td>${cat}</td><td>${rs.length}</td><td>${passed}</td><td>${failed}</td><td>${skipped}</td></tr>`;
+    })
+    .filter(Boolean)
+    .join('');
+  if (!rows) return '';
+  return `<table><thead><tr><th>Area</th><th>Checks</th><th>Passed</th><th>Failed</th><th>Skipped</th></tr></thead><tbody>${rows}</tbody></table>
+    <p class="sub">${results.length} checks run this run.</p>`;
+}
 export function buildReport(input) {
   const { snapshot } = input;
   const attention = needsAttention(input.comparison).map(comparedCard).join('');
   const fixed = input.comparison.entries
-    .filter((e) => e.classification === 'fixed' || e.classification === 'suspicious-pass')
+    .filter((e) => e.classification === 'fixed')
     .map(comparedCard)
     .join('');
   const meta = snapshot.meta;
@@ -254,13 +324,16 @@ export function buildReport(input) {
   ${firstRunNote}
   ${summaryTiles(input)}
 
+  ${section('Priority findings', 'Everything failing right now, worst severity first, across every area.', priorityFindings(snapshot.results))}
   ${section('Regressions and new bugs', 'What broke since last time, most urgent first. Each carries the evidence and a likely cause.', attention)}
-  ${section('Fixed since last run', 'Previously-failing checks that now pass. Suspicious passes are flagged for review rather than trusted.', fixed)}
+  ${section('Needs review', 'Uncertain results a human should look at: suspicious passes and low-confidence AI verdicts. Reported, not trusted, and never gated on.', needsReview(input))}
+  ${section('Fixed since last run', 'Previously-failing checks that genuinely pass now.', fixed)}
   ${section('Security findings', 'Read-only, non-destructive checks against our own account, ranked by severity.', securityTable(snapshot.results))}
   ${section('Visual checks', 'Layout and screenshot results.', detailTable(snapshot.results, 'visual'))}
   ${section('Functional checks', 'Every functional assertion this run made.', detailTable(snapshot.results, 'functional'))}
   ${section('Performance checks', 'Interaction timings against their budgets.', detailTable(snapshot.results, 'performance'))}
   ${section('AI script validation', 'Rubric results for the Modify Script with AI feature.', detailTable(snapshot.results, 'ai-validation'))}
+  ${section('Coverage', 'What this run actually exercised, by area.', coverage(snapshot.results))}
 
   <section>
     <h2>Run metadata</h2>

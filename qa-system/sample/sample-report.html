@@ -75,6 +75,21 @@
   <div class="tiles"><div class="tile bad"><div class="n">1</div><div class="l">Regressions</div></div><div class="tile bad"><div class="n">1</div><div class="l">New bugs</div></div><div class="tile ok"><div class="n">1</div><div class="l">Fixed</div></div><div class="tile warn"><div class="n">1</div><div class="l">Needs review</div></div><div class="tile muted"><div class="n">0</div><div class="l">Still broken</div></div><div class="tile muted"><div class="n">1</div><div class="l">Stable</div></div></div>
 
   <section>
+    <h2>Priority findings</h2>
+    <p class="sub">Everything failing right now, worst severity first, across every area.</p>
+    <table><thead><tr><th>Severity</th><th>Finding</th><th>Area</th><th>Detail</th></tr></thead><tbody><tr class="sev-high">
+        <td><span class="badge sev-high">high</span></td>
+        <td>Edited script survives a reload</td>
+        <td>functional</td>
+        <td>After reload the script reverted to the original</td>
+      </tr><tr class="sev-medium">
+        <td><span class="badge sev-medium">medium</span></td>
+        <td>Content-Security-Policy is enforced</td>
+        <td>security</td>
+        <td>CSP present but includes unsafe-inline for scripts</td>
+      </tr></tbody></table>
+  </section>
+  <section>
     <h2>Regressions and new bugs</h2>
     <p class="sub">What broke since last time, most urgent first. Each carries the evidence and a likely cause.</p>
     <article class="card">
@@ -141,27 +156,9 @@
   </article>
   </section>
   <section>
-    <h2>Fixed since last run</h2>
-    <p class="sub">Previously-failing checks that now pass. Suspicious passes are flagged for review rather than trusted.</p>
+    <h2>Needs review</h2>
+    <p class="sub">Uncertain results a human should look at: suspicious passes and low-confidence AI verdicts. Reported, not trusted, and never gated on.</p>
     <article class="card">
-    <header>
-      <span class="badge ok">fixed</span> <span class="badge ok">pass</span>
-      <span class="title">Modify Script with AI honours &quot;make concise&quot;</span>
-      <span class="cat">ai-validation</span>
-    </header>
-    <div class="grid">
-      <div>
-        <p class="kv"><b>Expected:</b> A shorter script that keeps every point</p>
-        <p class="kv"><b>Actual:</b> Rewrite was 32% shorter and preserved all points</p>
-        <p class="kv"><b>Previous run:</b> fail</p>
-        
-        
-        
-        
-      </div>
-      <div class="shot"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSczMjAnIGhlaWdodD0nMTgwJz48cmVjdCB3aWR0aD0nMzIwJyBoZWlnaHQ9JzE4MCcgZmlsbD0nIzEzN2E0YicvPjx0ZXh0IHg9JzE2MCcgeT0nOTUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE2JyBmaWxsPScjZmZmJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJz5BSSByZXdyaXRlIE9LPC90ZXh0Pjwvc3ZnPg==" alt="Modify Script with AI honours &quot;make concise&quot; screenshot" loading="lazy"></div>
-    </div>
-  </article><article class="card">
     <header>
       <span class="badge warn">suspicious pass</span> <span class="badge ok">pass</span>
       <span class="title">Background choice survives a reload</span>
@@ -181,6 +178,29 @@
         
       </div>
       
+    </div>
+  </article>
+  </section>
+  <section>
+    <h2>Fixed since last run</h2>
+    <p class="sub">Previously-failing checks that genuinely pass now.</p>
+    <article class="card">
+    <header>
+      <span class="badge ok">fixed</span> <span class="badge ok">pass</span>
+      <span class="title">Modify Script with AI honours &quot;make concise&quot;</span>
+      <span class="cat">ai-validation</span>
+    </header>
+    <div class="grid">
+      <div>
+        <p class="kv"><b>Expected:</b> A shorter script that keeps every point</p>
+        <p class="kv"><b>Actual:</b> Rewrite was 32% shorter and preserved all points</p>
+        <p class="kv"><b>Previous run:</b> fail</p>
+        
+        
+        
+        
+      </div>
+      <div class="shot"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSczMjAnIGhlaWdodD0nMTgwJz48cmVjdCB3aWR0aD0nMzIwJyBoZWlnaHQ9JzE4MCcgZmlsbD0nIzEzN2E0YicvPjx0ZXh0IHg9JzE2MCcgeT0nOTUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE2JyBmaWxsPScjZmZmJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJz5BSSByZXdyaXRlIE9LPC90ZXh0Pjwvc3ZnPg==" alt="Modify Script with AI honours &quot;make concise&quot; screenshot" loading="lazy"></div>
     </div>
   </article>
   </section>
@@ -225,6 +245,12 @@
         <td>A shorter script that keeps every point</td>
         <td>Rewrite was 32% shorter and preserved all points</td>
       </tr></tbody></table>
+  </section>
+  <section>
+    <h2>Coverage</h2>
+    <p class="sub">What this run actually exercised, by area.</p>
+    <table><thead><tr><th>Area</th><th>Checks</th><th>Passed</th><th>Failed</th><th>Skipped</th></tr></thead><tbody><tr><td>functional</td><td>3</td><td>2</td><td>1</td><td>0</td></tr><tr><td>security</td><td>1</td><td>0</td><td>1</td><td>0</td></tr><tr><td>ai-validation</td><td>1</td><td>1</td><td>0</td><td>0</td></tr></tbody></table>
+    <p class="sub">5 checks run this run.</p>
   </section>
 
   <section>
