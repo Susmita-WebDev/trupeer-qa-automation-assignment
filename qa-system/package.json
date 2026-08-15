@@ -5,11 +5,14 @@
   "type": "module",
   "description": "Regression-aware QA system: remembers prior runs and reasons about change",
   "scripts": {
+    "run": "node src/run.js",
     "demo": "node src/demo.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
     "@google/genai": "^2.17.1",
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
