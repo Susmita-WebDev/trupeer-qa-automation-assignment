@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en" data-report>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA run 20260815-0900</title>
+<style>
+  :root {
+    --bg:#f7f7f8; --panel:#ffffff; --ink:#1a1a1f; --muted:#6b6b76; --line:#e4e4ea;
+    --ok:#137a4b; --okbg:#e7f6ee; --bad:#b3261e; --badbg:#fdecea; --warn:#8a5a00; --warnbg:#fff4e0;
+    --accent:#3d5afe;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#16161a; --panel:#1f1f26; --ink:#ececf2; --muted:#a0a0ad; --line:#33333d;
+      --ok:#4ecb8d; --okbg:#123626; --bad:#ff6b61; --badbg:#3a1512; --warn:#ffc86b; --warnbg:#3a2c0e;
+      --accent:#8c9eff;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  .wrap { max-width:1080px; margin:0 auto; padding:32px 20px 80px; }
+  h1 { font-size:26px; margin:0 0 4px; }
+  h2 { font-size:19px; margin:34px 0 4px; }
+  .sub, .note { color:var(--muted); margin:0 0 14px; }
+  .head-meta { color:var(--muted); font-size:13px; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:12px; margin:20px 0; }
+  .tile { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; text-align:center; }
+  .tile .n { font-size:30px; font-weight:700; }
+  .tile .l { color:var(--muted); font-size:13px; }
+  .tile.bad .n { color:var(--bad); } .tile.ok .n { color:var(--ok); } .tile.warn .n { color:var(--warn); }
+  section { margin-top:8px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--accent);
+    border-radius:10px; padding:16px; margin:12px 0; }
+  .card header { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .card .title { font-weight:600; }
+  .card .cat { color:var(--muted); font-size:12px; margin-left:auto; text-transform:uppercase; letter-spacing:.04em; }
+  .grid { display:grid; grid-template-columns:1fr; gap:16px; }
+  @media (min-width:720px) { .grid.has-shot { grid-template-columns:1fr 320px; } }
+  .kv { margin:4px 0; }
+  .badge { font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em; }
+  .badge.ok { background:var(--okbg); color:var(--ok); }
+  .badge.bad { background:var(--badbg); color:var(--bad); }
+  .badge.warn { background:var(--warnbg); color:var(--warn); }
+  .badge.muted { background:var(--line); color:var(--muted); }
+  .badge.sev-critical, .badge.sev-high { background:var(--badbg); color:var(--bad); }
+  .badge.sev-medium { background:var(--warnbg); color:var(--warn); }
+  .badge.sev-low, .badge.sev-info { background:var(--line); color:var(--muted); }
+  .pill { display:inline-block; font-size:12px; background:var(--line); color:var(--muted); padding:2px 8px; border-radius:6px; margin:2px 4px 2px 0; }
+  code { display:block; font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:6px 8px; margin:4px 0; overflow-x:auto; white-space:pre-wrap; word-break:break-all; }
+  details { margin:8px 0; } summary { cursor:pointer; color:var(--accent); font-size:13px; }
+  .rootcause { background:var(--badbg); border-radius:8px; padding:10px 12px; margin:10px 0; }
+  .rootcause-h { font-weight:700; color:var(--bad); margin-bottom:4px; }
+  .fixintent { border-radius:8px; padding:8px 12px; margin:10px 0; font-size:13px; }
+  .fixintent.ok { background:var(--okbg); color:var(--ok); } .fixintent.warn { background:var(--warnbg); color:var(--warn); }
+  .shot img { width:100%; border:1px solid var(--line); border-radius:8px; }
+  table { width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:10px 0; }
+  th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top; }
+  th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  tr:last-child td { border-bottom:none; }
+  .routing code { display:inline-block; margin:2px 6px 2px 0; }
+  footer { margin-top:40px; color:var(--muted); font-size:12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>QA run report</h1>
+  <div class="head-meta">
+    Run <b>20260815-0900</b> at 2026-08-15T09:00:00.000Z against https://app.trupeer.ai
+     &middot; compared with run 20260814-0900
+  </div>
+  
+  <div class="tiles"><div class="tile bad"><div class="n">1</div><div class="l">Regressions</div></div><div class="tile bad"><div class="n">1</div><div class="l">New bugs</div></div><div class="tile ok"><div class="n">1</div><div class="l">Fixed</div></div><div class="tile warn"><div class="n">1</div><div class="l">Needs review</div></div><div class="tile muted"><div class="n">0</div><div class="l">Still broken</div></div><div class="tile muted"><div class="n">1</div><div class="l">Stable</div></div></div>
+
+  <section>
+    <h2>Regressions and new bugs</h2>
+    <p class="sub">What broke since last time, most urgent first. Each carries the evidence and a likely cause.</p>
+    <article class="card">
+    <header>
+      <span class="badge bad">regression</span> <span class="badge bad">fail</span>
+      <span class="title">Edited script survives a reload</span>
+      <span class="cat">functional</span>
+    </header>
+    <div class="grid">
+      <div>
+        <p class="kv"><b>Expected:</b> The edited script is still present after reloading the editor</p>
+        <p class="kv"><b>Actual:</b> After reload the script reverted to the original</p>
+        <p class="kv"><b>Previous run:</b> pass</p>
+        
+        <div class="rootcause">
+         <div class="rootcause-h">Likely cause (backend, confidence 0.82)</div>
+         <p>The script save endpoint began returning 500. The console error and the POST /api/script/save status change both point at a backend save failure, so the reload has nothing persisted to restore. This is a backend regression, not a UI one: the panel still renders, the save just does not complete.</p>
+         <code>NEW CONSOLE ERROR: Failed to save script: 500 Internal Server Error</code><code>STATUS REGRESSION: POST https://app.trupeer.ai/api/script/save returned 200 before, 500 now</code><code>NEW NETWORK FAILURE: POST https://app.trupeer.ai/api/script/save -&gt; 500</code>
+       </div>
+        
+        <div class="evidence"><details><summary>Console (1)</summary><code>[error] Failed to save script: 500 Internal Server Error</code></details><details><summary>Network failures (1)</summary><code>POST https://app.trupeer.ai/api/script/save -> 500</code></details><span class="pill">1100 ms</span></div>
+      </div>
+      <div class="shot"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSczMjAnIGhlaWdodD0nMTgwJz48cmVjdCB3aWR0aD0nMzIwJyBoZWlnaHQ9JzE4MCcgZmlsbD0nI2IzMjYxZScvPjx0ZXh0IHg9JzE2MCcgeT0nOTUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE2JyBmaWxsPScjZmZmJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJz5yZXZlcnRlZCBzY3JpcHQ8L3RleHQ+PC9zdmc+" alt="Edited script survives a reload screenshot" loading="lazy"></div>
+    </div>
+  </article><article class="card">
+    <header>
+      <span class="badge bad">new bug</span> <span class="badge bad">fail</span>
+      <span class="title">Content-Security-Policy is enforced</span>
+      <span class="cat">security</span>
+    </header>
+    <div class="grid">
+      <div>
+        <p class="kv"><b>Expected:</b> A CSP header that meaningfully restricts sources</p>
+        <p class="kv"><b>Actual:</b> CSP present but includes unsafe-inline for scripts</p>
+        
+        
+        
+        
+        
+      </div>
+      
+    </div>
+  </article><article class="card">
+    <header>
+      <span class="badge warn">suspicious pass</span> <span class="badge ok">pass</span>
+      <span class="title">Background choice survives a reload</span>
+      <span class="cat">functional</span>
+    </header>
+    <div class="grid">
+      <div>
+        <p class="kv"><b>Expected:</b> The chosen background is still applied after reload</p>
+        <p class="kv"><b>Actual:</b> Check passed, but the background option element was not found</p>
+        <p class="kv"><b>Previous run:</b> fail</p>
+        
+        
+        <div class="fixintent warn">
+         Unintended / suspicious fix
+         (confidence 0.88): The check passed only because its target element is gone, so it no longer verifies persistence. Treat as a check to repair, not a product fix.
+       </div>
+        
+      </div>
+      
+    </div>
+  </article>
+  </section>
+  <section>
+    <h2>Fixed since last run</h2>
+    <p class="sub">Previously-failing checks that now pass. Suspicious passes are flagged for review rather than trusted.</p>
+    <article class="card">
+    <header>
+      <span class="badge ok">fixed</span> <span class="badge ok">pass</span>
+      <span class="title">Modify Script with AI honours &quot;make concise&quot;</span>
+      <span class="cat">ai-validation</span>
+    </header>
+    <div class="grid">
+      <div>
+        <p class="kv"><b>Expected:</b> A shorter script that keeps every point</p>
+        <p class="kv"><b>Actual:</b> Rewrite was 32% shorter and preserved all points</p>
+        <p class="kv"><b>Previous run:</b> fail</p>
+        
+        
+        
+        
+      </div>
+      <div class="shot"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSczMjAnIGhlaWdodD0nMTgwJz48cmVjdCB3aWR0aD0nMzIwJyBoZWlnaHQ9JzE4MCcgZmlsbD0nIzEzN2E0YicvPjx0ZXh0IHg9JzE2MCcgeT0nOTUnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyBmb250LXNpemU9JzE2JyBmaWxsPScjZmZmJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJz5BSSByZXdyaXRlIE9LPC90ZXh0Pjwvc3ZnPg==" alt="Modify Script with AI honours &quot;make concise&quot; screenshot" loading="lazy"></div>
+    </div>
+  </article><article class="card">
+    <header>
+      <span class="badge warn">suspicious pass</span> <span class="badge ok">pass</span>
+      <span class="title">Background choice survives a reload</span>
+      <span class="cat">functional</span>
+    </header>
+    <div class="grid">
+      <div>
+        <p class="kv"><b>Expected:</b> The chosen background is still applied after reload</p>
+        <p class="kv"><b>Actual:</b> Check passed, but the background option element was not found</p>
+        <p class="kv"><b>Previous run:</b> fail</p>
+        
+        
+        <div class="fixintent warn">
+         Unintended / suspicious fix
+         (confidence 0.88): The check passed only because its target element is gone, so it no longer verifies persistence. Treat as a check to repair, not a product fix.
+       </div>
+        
+      </div>
+      
+    </div>
+  </article>
+  </section>
+  <section>
+    <h2>Security findings</h2>
+    <p class="sub">Read-only, non-destructive checks against our own account, ranked by severity.</p>
+    <table><thead><tr><th>Severity</th><th>Result</th><th>Check</th><th>Finding</th></tr></thead><tbody><tr class="sev-medium">
+        <td><span class="badge sev-medium">medium</span></td>
+        <td><span class="badge bad">fail</span></td>
+        <td>Content-Security-Policy is enforced</td>
+        <td>CSP present but includes unsafe-inline for scripts</td>
+      </tr></tbody></table>
+  </section>
+  
+  <section>
+    <h2>Functional checks</h2>
+    <p class="sub">Every functional assertion this run made.</p>
+    <table><thead><tr><th>Result</th><th>Check</th><th>Expected</th><th>Observed</th></tr></thead><tbody><tr>
+        <td><span class="badge bad">fail</span></td>
+        <td>Edited script survives a reload</td>
+        <td>The edited script is still present after reloading the editor</td>
+        <td>After reload the script reverted to the original</td>
+      </tr><tr>
+        <td><span class="badge ok">pass</span></td>
+        <td>No uncaught console errors in the editor</td>
+        <td>The editor loads with a clean console</td>
+        <td>Console clean</td>
+      </tr><tr>
+        <td><span class="badge ok">pass</span></td>
+        <td>Background choice survives a reload</td>
+        <td>The chosen background is still applied after reload</td>
+        <td>Check passed, but the background option element was not found</td>
+      </tr></tbody></table>
+  </section>
+  
+  <section>
+    <h2>AI script validation</h2>
+    <p class="sub">Rubric results for the Modify Script with AI feature.</p>
+    <table><thead><tr><th>Result</th><th>Check</th><th>Expected</th><th>Observed</th></tr></thead><tbody><tr>
+        <td><span class="badge ok">pass</span></td>
+        <td>Modify Script with AI honours &quot;make concise&quot;</td>
+        <td>A shorter script that keeps every point</td>
+        <td>Rewrite was 32% shorter and preserved all points</td>
+      </tr></tbody></table>
+  </section>
+
+  <section>
+    <h2>Run metadata</h2>
+    <table>
+      <tbody>
+      <tr><th>Target</th><td>https://app.trupeer.ai</td></tr>
+      <tr><th>Browser</th><td>chromium</td></tr>
+      <tr><th>Duration</th><td>51.0 s</td></tr>
+      <tr><th>Model routing</th><td class="routing"><code>regression-triage -> claude-opus-5</code><code>layout-sanity -> gemini-2.5-flash</code></td></tr>
+      <tr><th>Token spend</th><td>1840 in / 260 out</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    Generated by the Trupeer QA system. Regressions are ranked first because they
+    are the point: a suite that only reports today's pass rate has no memory.
+  </footer>
+</div>
+<script>
+  // Give any card that has a screenshot the two-column grid.
+  for (const g of document.querySelectorAll('.grid')) {
+    if (g.querySelector('.shot')) g.classList.add('has-shot');
+  }
+</script>
+</body>
+</html>
