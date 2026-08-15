@@ -123,7 +123,7 @@ timestamped copy of each:
 
 | File | For |
 | :--- | :--- |
-| `latest.html` | **Start here.** A self-contained report - result tallies, the per-criterion verdicts with confidence, and a live screenshot of the editor for every prompt. Opens straight from disk; the run also opens it for you (set `OPEN_REPORT=0` to suppress). |
+| `latest.html` | **Start here.** A self-contained dark report - result tallies, a card per prompt with pass/fail criterion pills and confidence, and a live editor screenshot you click to enlarge. Opens straight from disk; the run also opens it for you (set `OPEN_REPORT=0` to suppress). |
 | `latest.md` | The same content in Markdown, for reading on GitHub or in a diff. |
 | `latest.json` | The raw structured result, for CI to gate on. |
 

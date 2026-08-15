@@ -263,26 +263,29 @@ const OUTCOME_CLASS = {
 };
 
 /**
- * A self-contained HTML report. Inline CSS and relative image paths, so it opens
- * straight from the file system with no server and no external requests - the
- * same "just open it" experience as Part 2's Playwright report.
+ * A self-contained dark-themed HTML report. Inline CSS/JS and relative image
+ * paths, so it opens straight from the file system with no server and no
+ * external requests - the same "just open it" experience as Part 2's Playwright
+ * report. Screenshots are shown as thumbnails that expand to a full-screen
+ * lightbox on click.
  */
 function toHtml(summary) {
   const baselineShot = fs.existsSync(path.join(config.screenshotsDir, '_baseline.png'))
     ? 'screenshots/_baseline.png'
     : null;
 
-  const summaryRows = summary.results
-    .map(
-      (r) => `<tr>
-        <td><code>${esc(r.id)}</code></td>
-        <td><span class="badge ${OUTCOME_CLASS[r.outcome]}">${esc(r.outcome)}</span></td>
-        <td>${(r.score * 100).toFixed(0)}%</td>
-        <td>${esc(r.failedCriteria.join(', ')) || '-'}</td>
-        <td>${esc(r.lowConfidenceCriteria.join(', ')) || '-'}</td>
-      </tr>`,
-    )
-    .join('\n');
+  const baselineCard = baselineShot
+    ? `  <article class="card baseline">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="pill kind">Baseline</span></div>
+        <h3 class="prompt">The original script, before any rewrite</h3>
+        <p class="assess">Every prompt is graded against this pristine transcript, so each rewrite is an independent test rather than a drift from the previous one.</p>
+      </div>
+      <img class="thumb" src="${baselineShot}" alt="The editor with the original script" onclick="zoom(this.src)" />
+    </div>
+  </article>`
+    : '';
 
   const cards = summary.results.map((r) => renderCard(r)).join('\n');
 
@@ -294,52 +297,85 @@ function toHtml(summary) {
 <title>Modify Script with AI - validation report</title>
 <style>
   :root {
-    --bg: #f6f7f9; --card: #ffffff; --ink: #1c2430; --muted: #667085;
-    --line: #e4e7ec; --pass: #067647; --pass-bg: #ecfdf3; --fail: #b42318;
-    --fail-bg: #fef3f2; --review: #b54708; --review-bg: #fffaeb;
-    --error: #475467; --error-bg: #f2f4f7; --accent: #3538cd;
+    --bg: #0b0f17; --panel: #141a24; --card: #151b27; --ink: #e6edf5;
+    --muted: #8b98ab; --faint: #5b6676; --line: #232c3a;
+    --pass: #3fb950; --pass-bg: rgba(63,185,80,.12);
+    --fail: #f85149; --fail-bg: rgba(248,81,73,.13);
+    --review: #d9a125; --review-bg: rgba(217,161,37,.13);
+    --error: #8b98ab; --error-bg: rgba(139,152,171,.13);
+    --accent: #7c8bff; --kind: #c3b1ff; --kind-bg: rgba(124,110,255,.14);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
     font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
-  h1 { font-size: 24px; margin: 0 0 4px; }
-  .sub { color: var(--muted); margin: 0 0 20px; }
-  .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--muted); font-size: 13.5px; margin-bottom: 20px; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 20px 72px; }
+  h1 { font-size: 25px; margin: 0 0 4px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--muted); font-size: 13px; margin-bottom: 22px; }
   .meta b { color: var(--ink); font-weight: 600; }
-  .tallies { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
-  .tally { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; }
-  .tally .n { font-size: 22px; font-weight: 700; }
-  .tally .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .tallies { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .tally { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 20px; min-width: 96px; }
+  .tally .n { font-size: 26px; font-weight: 700; line-height: 1; }
+  .tally .l { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 6px; }
+  .rate { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+  .rate b { color: var(--ink); }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
   .badge.pass { color: var(--pass); background: var(--pass-bg); }
   .badge.fail { color: var(--fail); background: var(--fail-bg); }
   .badge.review { color: var(--review); background: var(--review-bg); }
   .badge.error { color: var(--error); background: var(--error-bg); }
-  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 13.5px; vertical-align: top; }
-  th { background: #fafbfc; color: var(--muted); font-weight: 600; }
-  tr:last-child td { border-bottom: none; }
-  code { background: #f2f4f7; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; margin-top: 22px; }
-  .card h3 { margin: 0 0 2px; font-size: 17px; }
-  .card .prompt { color: var(--ink); font-weight: 600; }
-  .card .intent { color: var(--muted); font-size: 13.5px; margin: 6px 0 16px; }
-  .crit td:nth-child(2) { white-space: nowrap; }
-  .conf { font-variant-numeric: tabular-nums; }
-  .low { color: var(--review); font-weight: 600; }
-  .overall { margin: 16px 0; padding: 12px 14px; background: #fafbfc; border-left: 3px solid var(--accent); border-radius: 6px; font-size: 14px; }
-  figure { margin: 16px 0 0; }
-  figure img { width: 100%; border: 1px solid var(--line); border-radius: 8px; display: block; }
-  figcaption { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
-  details { margin-top: 14px; }
-  summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 600; }
-  pre { background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; }
+
+  .card { position: relative; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--edge, var(--line)); border-radius: 12px; padding: 18px 20px; margin-top: 16px; }
+  .card.pass { --edge: var(--pass); } .card.fail { --edge: var(--fail); }
+  .card.review { --edge: var(--review); } .card.error { --edge: var(--error); }
+  .card.baseline { --edge: var(--faint); }
+  .card-head { display: flex; gap: 18px; align-items: flex-start; justify-content: space-between; }
+  .card-main { min-width: 0; flex: 1; }
+  .tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .tags .id { color: var(--faint); font-size: 12px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .prompt { margin: 0 0 6px; font-size: 16.5px; font-weight: 650; color: var(--ink); }
+  .assess { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .pill.kind { color: var(--kind); background: var(--kind-bg); border-color: rgba(124,110,255,.32); }
+  .pill.pass { color: var(--pass); background: var(--pass-bg); border-color: rgba(63,185,80,.28); }
+  .pill.fail { color: var(--fail); background: var(--fail-bg); border-color: rgba(248,81,73,.30); }
+  .pill.low { box-shadow: inset 0 0 0 1px var(--review); }
+  .pill .c { opacity: .7; font-variant-numeric: tabular-nums; }
+  .pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+
+  .thumb { flex: 0 0 auto; width: 150px; height: 94px; object-fit: cover; object-position: top left; border-radius: 8px; border: 1px solid var(--line); cursor: zoom-in; transition: transform .12s ease, border-color .12s ease; background: #0d1119; }
+  .thumb:hover { transform: scale(1.035); border-color: var(--accent); }
+
+  .cardmeta { margin-top: 14px; color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+  details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+  summary { cursor: pointer; color: var(--accent); font-size: 12.5px; font-weight: 600; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸ "; }
+  details[open] summary::before { content: "▾ "; }
+  .crit { width: 100%; border-collapse: collapse; margin: 12px 0 4px; }
+  .crit th, .crit td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; vertical-align: top; color: var(--ink); }
+  .crit th { color: var(--muted); font-weight: 600; }
+  .crit td:nth-child(3) { font-variant-numeric: tabular-nums; white-space: nowrap; }
   .scripts { display: grid; gap: 14px; margin-top: 12px; }
-  .scripts h4 { margin: 0 0 6px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-  footer { margin-top: 40px; color: var(--muted); font-size: 12.5px; text-align: center; }
+  .scripts h4 { margin: 0 0 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  pre { background: #0a0e15; color: #cbd5e1; padding: 13px; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; margin: 0; }
+  code { background: #0d1119; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  footer { margin-top: 44px; color: var(--faint); font-size: 12px; text-align: center; }
+
+  .lightbox { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(3,6,12,.9); cursor: zoom-out; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 96vw; max-height: 92vh; border-radius: 10px; border: 1px solid var(--line); box-shadow: 0 24px 70px rgba(0,0,0,.6); }
+  .lightbox .hint { position: fixed; top: 18px; right: 22px; color: var(--muted); font-size: 12.5px; }
+
+  @media (max-width: 640px) {
+    .card-head { flex-direction: column-reverse; }
+    .thumb { width: 100%; height: auto; }
+  }
 </style>
 </head>
 <body>
@@ -353,7 +389,6 @@ function toHtml(summary) {
       summary.effort ? ` (effort: ${esc(summary.effort)})` : ''
     }</span>
     <span><b>Confidence threshold</b> ${summary.confidenceThreshold}</span>
-    <span><b>Criterion pass rate</b> ${(summary.overallScore * 100).toFixed(1)}%</span>
   </div>
 
   <div class="tallies">
@@ -362,70 +397,98 @@ function toHtml(summary) {
     <div class="tally"><div class="n" style="color:var(--review)">${summary.totals['NEEDS REVIEW']}</div><div class="l">Need review</div></div>
     <div class="tally"><div class="n" style="color:var(--error)">${summary.totals.ERROR}</div><div class="l">Errored</div></div>
   </div>
+  <p class="rate">Overall criterion pass rate: <b>${(summary.overallScore * 100).toFixed(1)}%</b> &nbsp;&middot;&nbsp; click any thumbnail to enlarge.</p>
 
-  <table>
-    <thead><tr><th>Prompt</th><th>Outcome</th><th>Score</th><th>Failed criteria</th><th>Low-confidence</th></tr></thead>
-    <tbody>
-${summaryRows}
-    </tbody>
-  </table>
-${
-  baselineShot
-    ? `\n  <figure><img src="${baselineShot}" alt="The editor with the original script before any rewrite" /><figcaption>Baseline: the original script in the editor, graded against for every prompt.</figcaption></figure>`
-    : ''
-}
+${baselineCard}
 ${cards}
 
   <footer>Generated by the Part 3 validation harness. Screenshots are captured live from Trupeer during the run.</footer>
 </div>
+
+<div class="lightbox" id="lb" onclick="this.classList.remove('open')">
+  <span class="hint">Click anywhere or press Esc to close</span>
+  <img alt="Enlarged screenshot" />
+</div>
+<script>
+  function zoom(src) {
+    var lb = document.getElementById('lb');
+    lb.querySelector('img').src = src;
+    lb.classList.add('open');
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.getElementById('lb').classList.remove('open');
+  });
+</script>
 </body>
 </html>`;
 }
 
 function renderCard(result) {
   const outcomeClass = OUTCOME_CLASS[result.outcome];
+  const kindTag = result.kind ? `<span class="pill kind">${esc(result.kind)}</span>` : '';
+
   if (result.error) {
-    return `  <div class="card">
-    <h3><span class="badge ${outcomeClass}">${esc(result.outcome)}</span> <code>${esc(result.id)}</code></h3>
-    <p class="prompt">${esc(result.prompt)}</p>
-    <div class="overall">Error: ${esc(result.error)}</div>
-  </div>`;
+    return `  <article class="card ${outcomeClass}">
+    <div class="tags"><span class="badge ${outcomeClass}">${esc(result.outcome)}</span>${kindTag}<span class="id">${esc(result.id)}</span></div>
+    <h3 class="prompt">${esc(result.prompt)}</h3>
+    <p class="assess">Error: ${esc(result.error)}</p>
+  </article>`;
   }
   if (!result.judgement) return '';
 
+  // Each criterion becomes a pass/fail pill - the scannable, tag-like summary.
+  const pills = CRITERION_KEYS.map((key) => {
+    const v = result.judgement[key];
+    const low = v.confidence < config.confidenceThreshold;
+    const mark = v.passed ? '&#10003;' : '&#10007;';
+    return `<span class="pill ${v.passed ? 'pass' : 'fail'}${low ? ' low' : ''}">${mark} ${esc(
+      CRITERIA[key].label,
+    )} <span class="c">${v.confidence.toFixed(2)}</span></span>`;
+  }).join('\n        ');
+
+  // Full reasoning lives behind a disclosure so the card stays scannable.
   const critRows = CRITERION_KEYS.map((key) => {
     const v = result.judgement[key];
     const low = v.confidence < config.confidenceThreshold;
     return `<tr>
-      <td>${esc(CRITERIA[key].label)}</td>
-      <td><span class="badge ${v.passed ? 'pass' : 'fail'}">${v.passed ? 'pass' : 'FAIL'}</span></td>
-      <td class="conf ${low ? 'low' : ''}">${v.confidence.toFixed(2)}${low ? ' &#9888;' : ''}</td>
-      <td>${esc(v.reasoning)}</td>
-    </tr>`;
-  }).join('\n');
+        <td>${esc(CRITERIA[key].label)}</td>
+        <td><span class="badge ${v.passed ? 'pass' : 'fail'}">${v.passed ? 'pass' : 'fail'}</span></td>
+        <td>${v.confidence.toFixed(2)}${low ? ' &#9888;' : ''}</td>
+        <td>${esc(v.reasoning)}</td>
+      </tr>`;
+  }).join('\n      ');
 
   const shot = screenshotHref(result);
-  const figure = shot
-    ? `\n    <figure><img src="${shot}" alt="Editor after the ${esc(result.id)} rewrite" /><figcaption>Trupeer's editor showing the rewrite for this prompt.</figcaption></figure>`
+  const thumb = shot
+    ? `\n      <img class="thumb" src="${shot}" alt="Editor after the ${esc(
+        result.id,
+      )} rewrite" onclick="zoom(this.src)" />`
     : '';
 
-  return `  <div class="card">
-    <h3><span class="badge ${outcomeClass}">${esc(result.outcome)}</span> <code>${esc(result.id)}</code></h3>
-    <p class="prompt">${esc(result.prompt)}</p>
-    <p class="intent">Intent: ${esc(result.intent)}</p>
-    <table class="crit">
-      <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
-      <tbody>
-${critRows}
-      </tbody>
-    </table>
-    <div class="overall">${esc(result.judgement.overallAssessment)}</div>${figure}
+  return `  <article class="card ${outcomeClass}">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="badge ${outcomeClass}">${esc(result.outcome)}</span>${kindTag}<span class="id">${esc(result.id)}</span></div>
+        <h3 class="prompt">${esc(result.prompt)}</h3>
+        <p class="assess">${esc(result.judgement.overallAssessment)}</p>
+        <div class="pills">
+        ${pills}
+        </div>
+      </div>${thumb}
+    </div>
+    <div class="cardmeta">Score ${(result.score * 100).toFixed(0)}% &middot; ${result.originalScript.length} &rarr; ${result.modifiedScript.length} chars &middot; captured ${(result.captureDurationMs / 1000).toFixed(1)}s &middot; judged ${((result.judgeLatencyMs ?? 0) / 1000).toFixed(1)}s</div>
     <details>
-      <summary>Original and modified scripts</summary>
+      <summary>Per-criterion reasoning and full scripts</summary>
+      <table class="crit">
+        <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
+        <tbody>
+      ${critRows}
+        </tbody>
+      </table>
       <div class="scripts">
         <div><h4>Original (${result.originalScript.length} chars)</h4><pre>${esc(result.originalScript)}</pre></div>
         <div><h4>Modified (${result.modifiedScript.length} chars)</h4><pre>${esc(result.modifiedScript)}</pre></div>
       </div>
     </details>
-  </div>`;
+  </article>`;
 }

@@ -48,7 +48,8 @@
       "outcome": "PASS",
       "score": 1,
       "lowConfidenceCriteria": [],
-      "failedCriteria": []
+      "failedCriteria": [],
+      "kind": "Compression"
     },
     {
       "id": "professional",
@@ -93,7 +94,8 @@
       "outcome": "PASS",
       "score": 1,
       "lowConfidenceCriteria": [],
-      "failedCriteria": []
+      "failedCriteria": [],
+      "kind": "Tone shift"
     },
     {
       "id": "call-to-action",
@@ -140,7 +142,8 @@
       "lowConfidenceCriteria": [],
       "failedCriteria": [
         "Reflects the prompt intent"
-      ]
+      ],
+      "kind": "Additive edit"
     },
     {
       "id": "translate-spanish",
@@ -185,7 +188,8 @@
       "outcome": "PASS",
       "score": 1,
       "lowConfidenceCriteria": [],
-      "failedCriteria": []
+      "failedCriteria": [],
+      "kind": "Translation"
     },
     {
       "id": "beginner-friendly",
@@ -230,7 +234,8 @@
       "outcome": "PASS",
       "score": 1,
       "lowConfidenceCriteria": [],
-      "failedCriteria": []
+      "failedCriteria": [],
+      "kind": "Audience change"
     }
   ],
   "totals": {

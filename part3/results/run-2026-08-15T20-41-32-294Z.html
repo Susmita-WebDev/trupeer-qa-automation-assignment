@@ -6,52 +6,85 @@
 <title>Modify Script with AI - validation report</title>
 <style>
   :root {
-    --bg: #f6f7f9; --card: #ffffff; --ink: #1c2430; --muted: #667085;
-    --line: #e4e7ec; --pass: #067647; --pass-bg: #ecfdf3; --fail: #b42318;
-    --fail-bg: #fef3f2; --review: #b54708; --review-bg: #fffaeb;
-    --error: #475467; --error-bg: #f2f4f7; --accent: #3538cd;
+    --bg: #0b0f17; --panel: #141a24; --card: #151b27; --ink: #e6edf5;
+    --muted: #8b98ab; --faint: #5b6676; --line: #232c3a;
+    --pass: #3fb950; --pass-bg: rgba(63,185,80,.12);
+    --fail: #f85149; --fail-bg: rgba(248,81,73,.13);
+    --review: #d9a125; --review-bg: rgba(217,161,37,.13);
+    --error: #8b98ab; --error-bg: rgba(139,152,171,.13);
+    --accent: #7c8bff; --kind: #c3b1ff; --kind-bg: rgba(124,110,255,.14);
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--ink);
     font: 15px/1.55 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
-  h1 { font-size: 24px; margin: 0 0 4px; }
-  .sub { color: var(--muted); margin: 0 0 20px; }
-  .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--muted); font-size: 13.5px; margin-bottom: 20px; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 40px 20px 72px; }
+  h1 { font-size: 25px; margin: 0 0 4px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--muted); font-size: 13px; margin-bottom: 22px; }
   .meta b { color: var(--ink); font-weight: 600; }
-  .tallies { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
-  .tally { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; }
-  .tally .n { font-size: 22px; font-weight: 700; }
-  .tally .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .tallies { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+  .tally { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 20px; min-width: 96px; }
+  .tally .n { font-size: 26px; font-weight: 700; line-height: 1; }
+  .tally .l { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 6px; }
+  .rate { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+  .rate b { color: var(--ink); }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
   .badge.pass { color: var(--pass); background: var(--pass-bg); }
   .badge.fail { color: var(--fail); background: var(--fail-bg); }
   .badge.review { color: var(--review); background: var(--review-bg); }
   .badge.error { color: var(--error); background: var(--error-bg); }
-  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: 13.5px; vertical-align: top; }
-  th { background: #fafbfc; color: var(--muted); font-weight: 600; }
-  tr:last-child td { border-bottom: none; }
-  code { background: #f2f4f7; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; margin-top: 22px; }
-  .card h3 { margin: 0 0 2px; font-size: 17px; }
-  .card .prompt { color: var(--ink); font-weight: 600; }
-  .card .intent { color: var(--muted); font-size: 13.5px; margin: 6px 0 16px; }
-  .crit td:nth-child(2) { white-space: nowrap; }
-  .conf { font-variant-numeric: tabular-nums; }
-  .low { color: var(--review); font-weight: 600; }
-  .overall { margin: 16px 0; padding: 12px 14px; background: #fafbfc; border-left: 3px solid var(--accent); border-radius: 6px; font-size: 14px; }
-  figure { margin: 16px 0 0; }
-  figure img { width: 100%; border: 1px solid var(--line); border-radius: 8px; display: block; }
-  figcaption { color: var(--muted); font-size: 12.5px; margin-top: 6px; }
-  details { margin-top: 14px; }
-  summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 600; }
-  pre { background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; }
+
+  .card { position: relative; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--edge, var(--line)); border-radius: 12px; padding: 18px 20px; margin-top: 16px; }
+  .card.pass { --edge: var(--pass); } .card.fail { --edge: var(--fail); }
+  .card.review { --edge: var(--review); } .card.error { --edge: var(--error); }
+  .card.baseline { --edge: var(--faint); }
+  .card-head { display: flex; gap: 18px; align-items: flex-start; justify-content: space-between; }
+  .card-main { min-width: 0; flex: 1; }
+  .tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .tags .id { color: var(--faint); font-size: 12px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .prompt { margin: 0 0 6px; font-size: 16.5px; font-weight: 650; color: var(--ink); }
+  .assess { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .pill.kind { color: var(--kind); background: var(--kind-bg); border-color: rgba(124,110,255,.32); }
+  .pill.pass { color: var(--pass); background: var(--pass-bg); border-color: rgba(63,185,80,.28); }
+  .pill.fail { color: var(--fail); background: var(--fail-bg); border-color: rgba(248,81,73,.30); }
+  .pill.low { box-shadow: inset 0 0 0 1px var(--review); }
+  .pill .c { opacity: .7; font-variant-numeric: tabular-nums; }
+  .pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+
+  .thumb { flex: 0 0 auto; width: 150px; height: 94px; object-fit: cover; object-position: top left; border-radius: 8px; border: 1px solid var(--line); cursor: zoom-in; transition: transform .12s ease, border-color .12s ease; background: #0d1119; }
+  .thumb:hover { transform: scale(1.035); border-color: var(--accent); }
+
+  .cardmeta { margin-top: 14px; color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
+  details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+  summary { cursor: pointer; color: var(--accent); font-size: 12.5px; font-weight: 600; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸ "; }
+  details[open] summary::before { content: "▾ "; }
+  .crit { width: 100%; border-collapse: collapse; margin: 12px 0 4px; }
+  .crit th, .crit td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; vertical-align: top; color: var(--ink); }
+  .crit th { color: var(--muted); font-weight: 600; }
+  .crit td:nth-child(3) { font-variant-numeric: tabular-nums; white-space: nowrap; }
   .scripts { display: grid; gap: 14px; margin-top: 12px; }
-  .scripts h4 { margin: 0 0 6px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
-  footer { margin-top: 40px; color: var(--muted); font-size: 12.5px; text-align: center; }
+  .scripts h4 { margin: 0 0 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  pre { background: #0a0e15; color: #cbd5e1; padding: 13px; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; margin: 0; }
+  code { background: #0d1119; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  footer { margin-top: 44px; color: var(--faint); font-size: 12px; text-align: center; }
+
+  .lightbox { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(3,6,12,.9); cursor: zoom-out; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 96vw; max-height: 92vh; border-radius: 10px; border: 1px solid var(--line); box-shadow: 0 24px 70px rgba(0,0,0,.6); }
+  .lightbox .hint { position: fixed; top: 18px; right: 22px; color: var(--muted); font-size: 12.5px; }
+
+  @media (max-width: 640px) {
+    .card-head { flex-direction: column-reverse; }
+    .thumb { width: 100%; height: auto; }
+  }
 </style>
 </head>
 <body>
@@ -63,7 +96,6 @@
     <span><b>Run at</b> 2026-08-15T20:41:32.294Z</span>
     <span><b>Judge</b> gemini / <code>gemini-2.5-flash</code></span>
     <span><b>Confidence threshold</b> 0.75</span>
-    <span><b>Criterion pass rate</b> 95.0%</span>
   </div>
 
   <div class="tallies">
@@ -72,266 +104,300 @@
     <div class="tally"><div class="n" style="color:var(--review)">0</div><div class="l">Need review</div></div>
     <div class="tally"><div class="n" style="color:var(--error)">0</div><div class="l">Errored</div></div>
   </div>
+  <p class="rate">Overall criterion pass rate: <b>95.0%</b> &nbsp;&middot;&nbsp; click any thumbnail to enlarge.</p>
 
-  <table>
-    <thead><tr><th>Prompt</th><th>Outcome</th><th>Score</th><th>Failed criteria</th><th>Low-confidence</th></tr></thead>
-    <tbody>
-<tr>
-        <td><code>concise</code></td>
-        <td><span class="badge pass">PASS</span></td>
-        <td>100%</td>
-        <td>-</td>
-        <td>-</td>
-      </tr>
-<tr>
-        <td><code>professional</code></td>
-        <td><span class="badge pass">PASS</span></td>
-        <td>100%</td>
-        <td>-</td>
-        <td>-</td>
-      </tr>
-<tr>
-        <td><code>call-to-action</code></td>
-        <td><span class="badge fail">FAIL</span></td>
-        <td>75%</td>
-        <td>Reflects the prompt intent</td>
-        <td>-</td>
-      </tr>
-<tr>
-        <td><code>translate-spanish</code></td>
-        <td><span class="badge pass">PASS</span></td>
-        <td>100%</td>
-        <td>-</td>
-        <td>-</td>
-      </tr>
-<tr>
-        <td><code>beginner-friendly</code></td>
-        <td><span class="badge pass">PASS</span></td>
-        <td>100%</td>
-        <td>-</td>
-        <td>-</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <figure><img src="screenshots/_baseline.png" alt="The editor with the original script before any rewrite" /><figcaption>Baseline: the original script in the editor, graded against for every prompt.</figcaption></figure>
-  <div class="card">
-    <h3><span class="badge pass">PASS</span> <code>concise</code></h3>
-    <p class="prompt">Make this script more concise.</p>
-    <p class="intent">Intent: The output should be meaningfully shorter than the original while keeping every substantive point. Cutting filler and redundancy is correct; dropping a distinct fact or step is not.</p>
-    <table class="crit">
-      <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
-      <tbody>
-<tr>
-      <td>Reflects the prompt intent</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The modified script successfully condenses the original content, resulting in a significantly shorter version while retaining the key message. This directly aligns with the user's instruction to make the script more concise.</td>
-    </tr>
-<tr>
-      <td>Coherent and grammatical</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The modified script is well-structured, grammatically correct, and flows naturally, making it easy to understand.</td>
-    </tr>
-<tr>
-      <td>Preserves core information</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.90</td>
-      <td>All substantive facts and steps from the original script are retained in the modified version. Details and filler words have been removed, but no distinct piece of information essential to understanding Antester.com's function or benefits has been lost.</td>
-    </tr>
-<tr>
-      <td>Meaningfully different</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The modified script is a genuine rewrite, demonstrating substantial changes in phrasing and structure to achieve conciseness, rather than just swapping a few words or punctuation marks.</td>
-    </tr>
-      </tbody>
-    </table>
-    <div class="overall">The AI script-rewriting feature successfully made the script more concise as requested, while preserving all core information and maintaining coherence. The output is a high-quality rewrite that directly addresses the user's intent.</div>
-    <figure><img src="screenshots/concise.png" alt="Editor after the concise rewrite" /><figcaption>Trupeer's editor showing the rewrite for this prompt.</figcaption></figure>
+  <article class="card baseline">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="pill kind">Baseline</span></div>
+        <h3 class="prompt">The original script, before any rewrite</h3>
+        <p class="assess">Every prompt is graded against this pristine transcript, so each rewrite is an independent test rather than a drift from the previous one.</p>
+      </div>
+      <img class="thumb" src="screenshots/_baseline.png" alt="The editor with the original script" onclick="zoom(this.src)" />
+    </div>
+  </article>
+  <article class="card pass">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="badge pass">PASS</span><span class="pill kind">Compression</span><span class="id">concise</span></div>
+        <h3 class="prompt">Make this script more concise.</h3>
+        <p class="assess">The AI script-rewriting feature successfully made the script more concise as requested, while preserving all core information and maintaining coherence. The output is a high-quality rewrite that directly addresses the user's intent.</p>
+        <div class="pills">
+        <span class="pill pass">&#10003; Reflects the prompt intent <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Coherent and grammatical <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Preserves core information <span class="c">0.90</span></span>
+        <span class="pill pass">&#10003; Meaningfully different <span class="c">0.95</span></span>
+        </div>
+      </div>
+      <img class="thumb" src="screenshots/concise.png" alt="Editor after the concise rewrite" onclick="zoom(this.src)" />
+    </div>
+    <div class="cardmeta">Score 100% &middot; 795 &rarr; 492 chars &middot; captured 4.4s &middot; judged 11.8s</div>
     <details>
-      <summary>Original and modified scripts</summary>
+      <summary>Per-criterion reasoning and full scripts</summary>
+      <table class="crit">
+        <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
+        <tbody>
+      <tr>
+        <td>Reflects the prompt intent</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The modified script successfully condenses the original content, resulting in a significantly shorter version while retaining the key message. This directly aligns with the user's instruction to make the script more concise.</td>
+      </tr>
+      <tr>
+        <td>Coherent and grammatical</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The modified script is well-structured, grammatically correct, and flows naturally, making it easy to understand.</td>
+      </tr>
+      <tr>
+        <td>Preserves core information</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.90</td>
+        <td>All substantive facts and steps from the original script are retained in the modified version. Details and filler words have been removed, but no distinct piece of information essential to understanding Antester.com's function or benefits has been lost.</td>
+      </tr>
+      <tr>
+        <td>Meaningfully different</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The modified script is a genuine rewrite, demonstrating substantial changes in phrasing and structure to achieve conciseness, rather than just swapping a few words or punctuation marks.</td>
+      </tr>
+        </tbody>
+      </table>
       <div class="scripts">
         <div><h4>Original (795 chars)</h4><pre>Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.</pre></div>
         <div><h4>Modified (492 chars)</h4><pre>Hi! In this video, I’ll introduce you to antester.com, an AI-driven QA tool that tests websites just like a human, with no scripts required. Just provide a URL, and it generates a detailed bug report. It explores your app independently, creates realistic test cases using five expert personas, and tests every page and button. Tests run in a real browser, with AI judging what passes or fails. In minutes, you receive a prioritized bug report—no need to write tests yourself. That’s Antester.</pre></div>
       </div>
     </details>
-  </div>
-  <div class="card">
-    <h3><span class="badge pass">PASS</span> <code>professional</code></h3>
-    <p class="prompt">Make this more professional.</p>
-    <p class="intent">Intent: The output should read in a more formal, polished register - fewer colloquialisms, fewer filler words, tighter sentence construction - while saying the same things as the original. Length may stay roughly the same.</p>
-    <table class="crit">
-      <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
-      <tbody>
-<tr>
-      <td>Reflects the prompt intent</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">1.00</td>
-      <td>The modified script successfully transforms the original into a more professional, formal, and polished version. It replaces colloquialisms and informal phrasing with more sophisticated vocabulary and tighter sentence structures, directly aligning with the user's intent to 'Make this more professional' and the specified intended outcome.</td>
-    </tr>
-<tr>
-      <td>Coherent and grammatical</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">1.00</td>
-      <td>The script is well-written, grammatically sound, and the progression of ideas is clear and easy to follow. There are no awkward phrases, inconsistencies, or grammatical errors.</td>
-    </tr>
-<tr>
-      <td>Preserves core information</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">1.00</td>
-      <td>Every substantive fact, feature, and benefit mentioned in the original script is present in the modified version. The rephrasing enhances professionalism without sacrificing any details.</td>
-    </tr>
-<tr>
-      <td>Meaningfully different</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">1.00</td>
-      <td>The modified script is a comprehensive rewrite, not merely a superficial reword. It employs a completely different tone and vocabulary, restructuring sentences and using more complex and formal phrasing. This clearly demonstrates a genuine effort to transform the script's register.</td>
-    </tr>
-      </tbody>
-    </table>
-    <div class="overall">The AI successfully transformed the casual original script into a professional and polished version, fulfilling all aspects of the user's instruction. It maintains all core information while significantly elevating the language and sentence structure, making it highly effective.</div>
-    <figure><img src="screenshots/professional.png" alt="Editor after the professional rewrite" /><figcaption>Trupeer's editor showing the rewrite for this prompt.</figcaption></figure>
+  </article>
+  <article class="card pass">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="badge pass">PASS</span><span class="pill kind">Tone shift</span><span class="id">professional</span></div>
+        <h3 class="prompt">Make this more professional.</h3>
+        <p class="assess">The AI successfully transformed the casual original script into a professional and polished version, fulfilling all aspects of the user's instruction. It maintains all core information while significantly elevating the language and sentence structure, making it highly effective.</p>
+        <div class="pills">
+        <span class="pill pass">&#10003; Reflects the prompt intent <span class="c">1.00</span></span>
+        <span class="pill pass">&#10003; Coherent and grammatical <span class="c">1.00</span></span>
+        <span class="pill pass">&#10003; Preserves core information <span class="c">1.00</span></span>
+        <span class="pill pass">&#10003; Meaningfully different <span class="c">1.00</span></span>
+        </div>
+      </div>
+      <img class="thumb" src="screenshots/professional.png" alt="Editor after the professional rewrite" onclick="zoom(this.src)" />
+    </div>
+    <div class="cardmeta">Score 100% &middot; 795 &rarr; 953 chars &middot; captured 5.4s &middot; judged 11.0s</div>
     <details>
-      <summary>Original and modified scripts</summary>
+      <summary>Per-criterion reasoning and full scripts</summary>
+      <table class="crit">
+        <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
+        <tbody>
+      <tr>
+        <td>Reflects the prompt intent</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>1.00</td>
+        <td>The modified script successfully transforms the original into a more professional, formal, and polished version. It replaces colloquialisms and informal phrasing with more sophisticated vocabulary and tighter sentence structures, directly aligning with the user's intent to 'Make this more professional' and the specified intended outcome.</td>
+      </tr>
+      <tr>
+        <td>Coherent and grammatical</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>1.00</td>
+        <td>The script is well-written, grammatically sound, and the progression of ideas is clear and easy to follow. There are no awkward phrases, inconsistencies, or grammatical errors.</td>
+      </tr>
+      <tr>
+        <td>Preserves core information</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>1.00</td>
+        <td>Every substantive fact, feature, and benefit mentioned in the original script is present in the modified version. The rephrasing enhances professionalism without sacrificing any details.</td>
+      </tr>
+      <tr>
+        <td>Meaningfully different</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>1.00</td>
+        <td>The modified script is a comprehensive rewrite, not merely a superficial reword. It employs a completely different tone and vocabulary, restructuring sentences and using more complex and formal phrasing. This clearly demonstrates a genuine effort to transform the script's register.</td>
+      </tr>
+        </tbody>
+      </table>
       <div class="scripts">
         <div><h4>Original (795 chars)</h4><pre>Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.</pre></div>
         <div><h4>Modified (953 chars)</h4><pre>Hello and welcome. In this video, I will introduce you to an innovative tool called antester.com. This AI-driven quality assurance agent autonomously tests websites just as a human tester would, requiring no manual scripting. The process is straightforward: you provide a URL, and the tool delivers a comprehensive bug report. It independently navigates the entire application, identifies all pages and interactive elements, and generates thorough test cases by simulating the perspectives of five distinct expert personas, such as a senior developer, an end user, and a product manager. These tests are executed in an actual browser environment, with an AI evaluator objectively determining the pass or fail status of each case. Upon completion, you receive a detailed report with issues prioritized by severity—enabling you to obtain actionable results within minutes, rather than spending hours developing test scripts. That is the Antester platform.</pre></div>
       </div>
     </details>
-  </div>
-  <div class="card">
-    <h3><span class="badge fail">FAIL</span> <code>call-to-action</code></h3>
-    <p class="prompt">Add a call to action at the end.</p>
-    <p class="intent">Intent: The output should keep the original script essentially intact and append a closing call to action (e.g. inviting the viewer to sign up, try the product, or get in touch). Rewriting the whole script is not what was asked for.</p>
-    <table class="crit">
-      <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
-      <tbody>
-<tr>
-      <td>Reflects the prompt intent</td>
-      <td><span class="badge fail">FAIL</span></td>
-      <td class="conf ">0.90</td>
-      <td>The script successfully added a call to action at the end ('Ready to make testing effortless? Try it out for yourself today!'). However, the user explicitly stated that 'Rewriting the whole script is not what was asked for' and that the original should be kept 'essentially intact'. The modified script rephrased almost every sentence of the original content, which goes against this specific constraint of the instruction.</td>
-    </tr>
-<tr>
-      <td>Coherent and grammatical</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The modified script is fluent, grammatically correct, and the added call to action integrates well with the preceding content.</td>
-    </tr>
-<tr>
-      <td>Preserves core information</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>All key facts about antester.com's functionality, process, and benefits (AI-powered QA, human-like testing, no scripts, URL input, bug reports, app exploration, page/button finding, 5 expert personas, real browser, AI judge, sorted reports, time-saving) are retained in the modified script. The rephrasing did not lead to any loss of substantive information.</td>
-    </tr>
-<tr>
-      <td>Meaningfully different</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.80</td>
-      <td>Beyond the explicitly requested call to action, the modified script genuinely rephrases most of the original sentences, using different vocabulary and sentence structures rather than just swapping a few synonyms or changing punctuation. While this goes against the user's intent to keep the original 'essentially intact', the changes themselves are significant enough to be considered 'meaningfully different' from the original text (which is what this criterion asks). The problem with these changes is addressed in 'reflectsIntent'.</td>
-    </tr>
-      </tbody>
-    </table>
-    <div class="overall">The script successfully added a relevant call to action at the end, which was the primary instruction. However, it also significantly rephrased the entire original script, going against the user's explicit request to keep the original 'essentially intact' and stating that 'Rewriting the whole script is not what was asked for.' This makes it fail the 'reflectsIntent' criterion despite fulfilling part of the request. The changes made to the body of the script are indeed meaningful, but they were not desired by the user for this specific task.</div>
-    <figure><img src="screenshots/call-to-action.png" alt="Editor after the call-to-action rewrite" /><figcaption>Trupeer's editor showing the rewrite for this prompt.</figcaption></figure>
+  </article>
+  <article class="card fail">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="badge fail">FAIL</span><span class="pill kind">Additive edit</span><span class="id">call-to-action</span></div>
+        <h3 class="prompt">Add a call to action at the end.</h3>
+        <p class="assess">The script successfully added a relevant call to action at the end, which was the primary instruction. However, it also significantly rephrased the entire original script, going against the user's explicit request to keep the original 'essentially intact' and stating that 'Rewriting the whole script is not what was asked for.' This makes it fail the 'reflectsIntent' criterion despite fulfilling part of the request. The changes made to the body of the script are indeed meaningful, but they were not desired by the user for this specific task.</p>
+        <div class="pills">
+        <span class="pill fail">&#10007; Reflects the prompt intent <span class="c">0.90</span></span>
+        <span class="pill pass">&#10003; Coherent and grammatical <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Preserves core information <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Meaningfully different <span class="c">0.80</span></span>
+        </div>
+      </div>
+      <img class="thumb" src="screenshots/call-to-action.png" alt="Editor after the call-to-action rewrite" onclick="zoom(this.src)" />
+    </div>
+    <div class="cardmeta">Score 75% &middot; 795 &rarr; 845 chars &middot; captured 4.4s &middot; judged 16.8s</div>
     <details>
-      <summary>Original and modified scripts</summary>
+      <summary>Per-criterion reasoning and full scripts</summary>
+      <table class="crit">
+        <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
+        <tbody>
+      <tr>
+        <td>Reflects the prompt intent</td>
+        <td><span class="badge fail">fail</span></td>
+        <td>0.90</td>
+        <td>The script successfully added a call to action at the end ('Ready to make testing effortless? Try it out for yourself today!'). However, the user explicitly stated that 'Rewriting the whole script is not what was asked for' and that the original should be kept 'essentially intact'. The modified script rephrased almost every sentence of the original content, which goes against this specific constraint of the instruction.</td>
+      </tr>
+      <tr>
+        <td>Coherent and grammatical</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The modified script is fluent, grammatically correct, and the added call to action integrates well with the preceding content.</td>
+      </tr>
+      <tr>
+        <td>Preserves core information</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>All key facts about antester.com's functionality, process, and benefits (AI-powered QA, human-like testing, no scripts, URL input, bug reports, app exploration, page/button finding, 5 expert personas, real browser, AI judge, sorted reports, time-saving) are retained in the modified script. The rephrasing did not lead to any loss of substantive information.</td>
+      </tr>
+      <tr>
+        <td>Meaningfully different</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.80</td>
+        <td>Beyond the explicitly requested call to action, the modified script genuinely rephrases most of the original sentences, using different vocabulary and sentence structures rather than just swapping a few synonyms or changing punctuation. While this goes against the user's intent to keep the original 'essentially intact', the changes themselves are significant enough to be considered 'meaningfully different' from the original text (which is what this criterion asks). The problem with these changes is addressed in 'reflectsIntent'.</td>
+      </tr>
+        </tbody>
+      </table>
       <div class="scripts">
         <div><h4>Original (795 chars)</h4><pre>Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.</pre></div>
         <div><h4>Modified (845 chars)</h4><pre>Hi! In this video, I’ll introduce you to a tool called antester.com. It’s an AI-powered QA agent that tests websites just like a human would—no scripts required. Here’s how it works: you provide a URL, and it delivers a detailed bug report. The tool independently explores your entire app, checks out every page and button, and creates realistic test cases with five different expert personas, such as a senior developer, a real user, and a product manager. All tests are run in a real browser, and an AI judge reviews the outcomes to identify what passed or failed. In the end, you’ll receive a clear report with all bugs organized by severity. Instead of spending hours on manual test writing, you just paste a link and get comprehensive results within minutes. That’s Antester. Ready to make testing effortless? Try it out for yourself today!</pre></div>
       </div>
     </details>
-  </div>
-  <div class="card">
-    <h3><span class="badge pass">PASS</span> <code>translate-spanish</code></h3>
-    <p class="prompt">Translate this script to Spanish.</p>
-    <p class="intent">Intent: The output should be the same script rendered in fluent Spanish, preserving meaning, structure and any product names. Output that remains in English is a failure, as is a partial translation.</p>
-    <table class="crit">
-      <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
-      <tbody>
-<tr>
-      <td>Reflects the prompt intent</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">1.00</td>
-      <td>The user asked for the script to be translated to Spanish. The modified script is a complete translation of the original script into Spanish, and it correctly preserves the product names 'antester.com' and 'Antester'.</td>
-    </tr>
-<tr>
-      <td>Coherent and grammatical</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The Spanish translation is fluent, uses correct grammar, and reads naturally. There are no awkward phrases or grammatical errors.</td>
-    </tr>
-<tr>
-      <td>Preserves core information</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">1.00</td>
-      <td>The modified script successfully retains all the substantive facts, steps, and claims from the original English script, including product names and specific details about the tool's functionality.</td>
-    </tr>
-<tr>
-      <td>Meaningfully different</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">1.00</td>
-      <td>As a translation into a different language, the modified script is inherently and meaningfully different from the original script.</td>
-    </tr>
-      </tbody>
-    </table>
-    <div class="overall">The AI script-rewriting feature successfully translated the entire script into fluent and grammatically correct Spanish. All core information, including product names and functional details, was preserved. The output fully reflects the user's intent to translate the script without any loss of meaning or coherence.</div>
-    <figure><img src="screenshots/translate-spanish.png" alt="Editor after the translate-spanish rewrite" /><figcaption>Trupeer's editor showing the rewrite for this prompt.</figcaption></figure>
+  </article>
+  <article class="card pass">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="badge pass">PASS</span><span class="pill kind">Translation</span><span class="id">translate-spanish</span></div>
+        <h3 class="prompt">Translate this script to Spanish.</h3>
+        <p class="assess">The AI script-rewriting feature successfully translated the entire script into fluent and grammatically correct Spanish. All core information, including product names and functional details, was preserved. The output fully reflects the user's intent to translate the script without any loss of meaning or coherence.</p>
+        <div class="pills">
+        <span class="pill pass">&#10003; Reflects the prompt intent <span class="c">1.00</span></span>
+        <span class="pill pass">&#10003; Coherent and grammatical <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Preserves core information <span class="c">1.00</span></span>
+        <span class="pill pass">&#10003; Meaningfully different <span class="c">1.00</span></span>
+        </div>
+      </div>
+      <img class="thumb" src="screenshots/translate-spanish.png" alt="Editor after the translate-spanish rewrite" onclick="zoom(this.src)" />
+    </div>
+    <div class="cardmeta">Score 100% &middot; 795 &rarr; 919 chars &middot; captured 4.4s &middot; judged 5.4s</div>
     <details>
-      <summary>Original and modified scripts</summary>
+      <summary>Per-criterion reasoning and full scripts</summary>
+      <table class="crit">
+        <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
+        <tbody>
+      <tr>
+        <td>Reflects the prompt intent</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>1.00</td>
+        <td>The user asked for the script to be translated to Spanish. The modified script is a complete translation of the original script into Spanish, and it correctly preserves the product names 'antester.com' and 'Antester'.</td>
+      </tr>
+      <tr>
+        <td>Coherent and grammatical</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The Spanish translation is fluent, uses correct grammar, and reads naturally. There are no awkward phrases or grammatical errors.</td>
+      </tr>
+      <tr>
+        <td>Preserves core information</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>1.00</td>
+        <td>The modified script successfully retains all the substantive facts, steps, and claims from the original English script, including product names and specific details about the tool's functionality.</td>
+      </tr>
+      <tr>
+        <td>Meaningfully different</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>1.00</td>
+        <td>As a translation into a different language, the modified script is inherently and meaningfully different from the original script.</td>
+      </tr>
+        </tbody>
+      </table>
       <div class="scripts">
         <div><h4>Original (795 chars)</h4><pre>Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.</pre></div>
         <div><h4>Modified (919 chars)</h4><pre>Hola. En este video, te voy a mostrar una herramienta llamada antester.com. Es un agente de control de calidad impulsado por IA que prueba sitios web como lo haría un tester humano, sin que nadie escriba ni un solo script. La idea es sencilla. Le das una URL, y te devuelve un informe completo de errores. Detrás de escena, explora toda la aplicación por sí misma, encuentra cada página y cada botón, y genera casos de prueba realistas usando cinco personas expertas diferentes, como un desarrollador senior, un usuario real y una persona gerente de producto. Ejecuta todas estas pruebas en un navegador real, y una inteligencia artificial determina qué pruebas pasaron realmente y cuáles fallaron. Al final, recibes un informe limpio con todos los errores clasificados según su gravedad. Así que, en vez de pasar horas escribiendo pruebas, simplemente pegas un enlace y obtienes resultados en minutos. Eso es Antester.</pre></div>
       </div>
     </details>
-  </div>
-  <div class="card">
-    <h3><span class="badge pass">PASS</span> <code>beginner-friendly</code></h3>
-    <p class="prompt">Rewrite this so a complete beginner can follow it, explaining any jargon.</p>
-    <p class="intent">Intent: The output should explain or replace technical terms and add brief context where the original assumed knowledge. It may be longer than the original. It must not become inaccurate in the process of simplifying.</p>
-    <table class="crit">
-      <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
-      <tbody>
-<tr>
-      <td>Reflects the prompt intent</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The modified script successfully rephrased technical terms like 'AI-powered QA agent', 'script', 'URL', 'test cases', and 'personas' into language a complete beginner could understand. It provided brief, in-line explanations for each piece of jargon without losing accuracy. The script is also slightly longer, indicating the addition of context as requested.</td>
-    </tr>
-<tr>
-      <td>Coherent and grammatical</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The script is well-written, grammatically correct, and flows logically from one point to the next, making it easy to follow for its intended audience.</td>
-    </tr>
-<tr>
-      <td>Preserves core information</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>All the key facts about antester.com's functionality, input, output, and benefits from the original script are retained in the modified version. The simplification did not lead to any loss of substantive information.</td>
-    </tr>
-<tr>
-      <td>Meaningfully different</td>
-      <td><span class="badge pass">pass</span></td>
-      <td class="conf ">0.95</td>
-      <td>The modified script is a substantial rewrite. It goes beyond simple synonym swaps by rephrasing entire clauses, adding explanatory text, and simplifying complex ideas, demonstrating a genuine effort to adapt the content for a beginner audience.</td>
-    </tr>
-      </tbody>
-    </table>
-    <div class="overall">The modified script effectively meets all the requirements of the prompt. It successfully simplifies the language, explains jargon, maintains accuracy, and is a coherent and meaningfully different rewrite of the original script, perfectly tailored for a complete beginner.</div>
-    <figure><img src="screenshots/beginner-friendly.png" alt="Editor after the beginner-friendly rewrite" /><figcaption>Trupeer's editor showing the rewrite for this prompt.</figcaption></figure>
+  </article>
+  <article class="card pass">
+    <div class="card-head">
+      <div class="card-main">
+        <div class="tags"><span class="badge pass">PASS</span><span class="pill kind">Audience change</span><span class="id">beginner-friendly</span></div>
+        <h3 class="prompt">Rewrite this so a complete beginner can follow it, explaining any jargon.</h3>
+        <p class="assess">The modified script effectively meets all the requirements of the prompt. It successfully simplifies the language, explains jargon, maintains accuracy, and is a coherent and meaningfully different rewrite of the original script, perfectly tailored for a complete beginner.</p>
+        <div class="pills">
+        <span class="pill pass">&#10003; Reflects the prompt intent <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Coherent and grammatical <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Preserves core information <span class="c">0.95</span></span>
+        <span class="pill pass">&#10003; Meaningfully different <span class="c">0.95</span></span>
+        </div>
+      </div>
+      <img class="thumb" src="screenshots/beginner-friendly.png" alt="Editor after the beginner-friendly rewrite" onclick="zoom(this.src)" />
+    </div>
+    <div class="cardmeta">Score 100% &middot; 795 &rarr; 1070 chars &middot; captured 6.4s &middot; judged 10.2s</div>
     <details>
-      <summary>Original and modified scripts</summary>
+      <summary>Per-criterion reasoning and full scripts</summary>
+      <table class="crit">
+        <thead><tr><th>Criterion</th><th>Verdict</th><th>Conf.</th><th>Reasoning</th></tr></thead>
+        <tbody>
+      <tr>
+        <td>Reflects the prompt intent</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The modified script successfully rephrased technical terms like 'AI-powered QA agent', 'script', 'URL', 'test cases', and 'personas' into language a complete beginner could understand. It provided brief, in-line explanations for each piece of jargon without losing accuracy. The script is also slightly longer, indicating the addition of context as requested.</td>
+      </tr>
+      <tr>
+        <td>Coherent and grammatical</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The script is well-written, grammatically correct, and flows logically from one point to the next, making it easy to follow for its intended audience.</td>
+      </tr>
+      <tr>
+        <td>Preserves core information</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>All the key facts about antester.com's functionality, input, output, and benefits from the original script are retained in the modified version. The simplification did not lead to any loss of substantive information.</td>
+      </tr>
+      <tr>
+        <td>Meaningfully different</td>
+        <td><span class="badge pass">pass</span></td>
+        <td>0.95</td>
+        <td>The modified script is a substantial rewrite. It goes beyond simple synonym swaps by rephrasing entire clauses, adding explanatory text, and simplifying complex ideas, demonstrating a genuine effort to adapt the content for a beginner audience.</td>
+      </tr>
+        </tbody>
+      </table>
       <div class="scripts">
         <div><h4>Original (795 chars)</h4><pre>Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.</pre></div>
         <div><h4>Modified (1070 chars)</h4><pre>Hi there! In this video, I'm going to introduce you to a website called antester.com. It's a smart tool that uses artificial intelligence, or AI, to check other websites for problems—just like a real person would—without anyone needing to write complicated computer instructions called scripts. Here's how it works: you just give the tool a website address, also called a URL, and it will look through the whole website by itself. It checks every page and button, and it tries out different ways of using the website, just like different types of people might—like someone who builds websites, a regular visitor, or someone managing the product. It tries out all of these tests in an actual internet browser, and then an AI system figures out which things on the website are working and which aren't. When it's done, you get an easy-to-read list of any problems it found, organized by how important they are. So instead of spending a long time checking everything yourself, you just share the website link and see the results in a few minutes. That's what Antester does.</pre></div>
       </div>
     </details>
-  </div>
+  </article>
 
   <footer>Generated by the Part 3 validation harness. Screenshots are captured live from Trupeer during the run.</footer>
 </div>
+
+<div class="lightbox" id="lb" onclick="this.classList.remove('open')">
+  <span class="hint">Click anywhere or press Esc to close</span>
+  <img alt="Enlarged screenshot" />
+</div>
+<script>
+  function zoom(src) {
+    var lb = document.getElementById('lb');
+    lb.querySelector('img').src = src;
+    lb.classList.add('open');
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.getElementById('lb').classList.remove('open');
+  });
+</script>
 </body>
 </html>

@@ -15,6 +15,7 @@
 export const TEST_PROMPTS = [
   {
     id: 'concise',
+    kind: 'Compression',
     prompt: 'Make this script more concise.',
     intent:
       'The output should be meaningfully shorter than the original while keeping ' +
@@ -23,6 +24,7 @@ export const TEST_PROMPTS = [
   },
   {
     id: 'professional',
+    kind: 'Tone shift',
     prompt: 'Make this more professional.',
     intent:
       'The output should read in a more formal, polished register - fewer colloquialisms, ' +
@@ -31,6 +33,7 @@ export const TEST_PROMPTS = [
   },
   {
     id: 'call-to-action',
+    kind: 'Additive edit',
     prompt: 'Add a call to action at the end.',
     intent:
       'The output should keep the original script essentially intact and append a ' +
@@ -39,6 +42,7 @@ export const TEST_PROMPTS = [
   },
   {
     id: 'translate-spanish',
+    kind: 'Translation',
     prompt: 'Translate this script to Spanish.',
     intent:
       'The output should be the same script rendered in fluent Spanish, preserving ' +
@@ -52,6 +56,7 @@ export const TEST_PROMPTS = [
   },
   {
     id: 'beginner-friendly',
+    kind: 'Audience change',
     prompt: 'Rewrite this so a complete beginner can follow it, explaining any jargon.',
     intent:
       'The output should explain or replace technical terms and add brief context where ' +

@@ -31,6 +31,7 @@ async function main() {
       console.log(`\n[validate] ${position} "${testPrompt.prompt}"`);
       let partial = {
         id: testPrompt.id,
+        kind: testPrompt.kind,
         prompt: testPrompt.prompt,
         intent: testPrompt.intent,
         originalScript: '',
