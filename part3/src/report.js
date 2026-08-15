@@ -143,6 +143,9 @@ export function writeReports(summary) {
   fs.mkdirSync(config.resultsDir, {
     recursive: true,
   });
+  // Compare against the previous run BEFORE latest.json is overwritten below.
+  // This is what makes the report regression-aware run over run.
+  summary.changes = computeChanges(summary, loadPreviousSummary());
   const stamp = summary.startedAt.replace(/[:.]/g, '-');
   const jsonPath = path.join(config.resultsDir, `run-${stamp}.json`);
   fs.writeFileSync(jsonPath, JSON.stringify(summary, null, 2), 'utf8');
@@ -184,6 +187,72 @@ export function openReport(file) {
     // Opening is a convenience; a headless box without a browser must not fail.
   }
 }
+
+// --- Run-over-run memory ---------------------------------------------------
+// The previous run's snapshot is results/latest.json. Comparing this run to it
+// is what powers the "Changes since last run" tab: a check that passed last time
+// and fails now is a regression, the event worth surfacing first.
+
+/** Reads the previous run's summary (results/latest.json), or null on the first run. */
+function loadPreviousSummary() {
+  const file = path.join(config.resultsDir, 'latest.json');
+  if (!fs.existsSync(file)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+const CHANGE_ORDER = {
+  regression: 0,
+  'new': 1,
+  fixed: 2,
+  'still-failing': 3,
+  removed: 4,
+  stable: 5,
+};
+
+/**
+ * Classifies each prompt's outcome against the previous run. Pure and
+ * deterministic. Returns null on the first run (nothing to compare against).
+ */
+function computeChanges(current, previous) {
+  if (!previous || !Array.isArray(previous.results)) return null;
+  const passish = (o) => o === 'PASS';
+  const prevById = new Map(previous.results.map((r) => [r.id, r]));
+  const items = current.results.map((r) => {
+    const p = prevById.get(r.id);
+    let type;
+    if (!p) type = 'new';
+    else if (passish(p.outcome) && !passish(r.outcome)) type = 'regression';
+    else if (!passish(p.outcome) && passish(r.outcome)) type = 'fixed';
+    else if (!passish(r.outcome)) type = 'still-failing';
+    else type = 'stable';
+    return {
+      id: r.id,
+      kind: r.kind ?? null,
+      prompt: r.prompt,
+      type,
+      from: p ? p.outcome : null,
+      to: r.outcome,
+      scoreFrom: p ? p.score : null,
+      scoreTo: r.score,
+    };
+  });
+  // Prompts that existed last run but are gone now.
+  const currentIds = new Set(current.results.map((r) => r.id));
+  for (const p of previous.results) {
+    if (!currentIds.has(p.id)) {
+      items.push({ id: p.id, kind: p.kind ?? null, prompt: p.prompt, type: 'removed', from: p.outcome, to: null });
+    }
+  }
+  items.sort((a, b) => CHANGE_ORDER[a.type] - CHANGE_ORDER[b.type] || a.id.localeCompare(b.id));
+  const counts = {};
+  for (const it of items) counts[it.type] = (counts[it.type] ?? 0) + 1;
+  return { previousRunAt: previous.startedAt, counts, items };
+}
+
 function toMarkdown(summary) {
   const lines = [
     '# Modify Script with AI - validation run',
@@ -196,6 +265,7 @@ function toMarkdown(summary) {
       `${summary.totals['NEEDS REVIEW']} need review, ${summary.totals.ERROR} errored`,
     `- **Overall criterion pass rate:** ${(summary.overallScore * 100).toFixed(1)}%`,
     '',
+    ...changesMarkdown(summary),
     '## Summary',
     '',
     '| Prompt | Outcome | Score | Failed criteria | Low-confidence criteria |',
@@ -289,6 +359,23 @@ function toHtml(summary) {
 
   const cards = summary.results.map((r) => renderCard(r)).join('\n');
 
+  const changesPanel = renderChanges(summary);
+  let changesTabBadge = '';
+  if (summary.changes) {
+    const cc = summary.changes.counts;
+    const reg = cc.regression ?? 0;
+    const recurring = cc['still-failing'] ?? 0;
+    const otherChanges = (cc.fixed ?? 0) + (cc['new'] ?? 0) + (cc.removed ?? 0);
+    changesTabBadge =
+      reg > 0
+        ? `<span class="cnt warn">${reg} regression${reg > 1 ? 's' : ''}</span>`
+        : recurring > 0
+          ? `<span class="cnt warn">${recurring} recurring</span>`
+          : otherChanges > 0
+            ? `<span class="cnt">${otherChanges} changed</span>`
+            : `<span class="cnt">no change</span>`;
+  }
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -367,6 +454,34 @@ function toHtml(summary) {
   code { background: #0d1119; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
   footer { margin-top: 44px; color: var(--faint); font-size: 12px; text-align: center; }
 
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: 22px 0 4px; }
+  .tab { background: none; border: none; color: var(--muted); font: inherit; font-size: 13.5px; font-weight: 600; padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab:hover { color: var(--ink); }
+  .tab.is-active { color: var(--ink); border-bottom-color: var(--accent); }
+  .tab .cnt { display: inline-block; margin-left: 7px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; background: var(--panel); color: var(--muted); }
+  .tab .cnt.warn { background: var(--review-bg); color: var(--review); }
+  .panel { display: none; }
+  .panel.is-active { display: block; }
+  .empty { color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; margin-top: 16px; }
+
+  .chg-summary { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 6px; }
+  .chg-chip { padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid var(--line); color: var(--muted); }
+  .chg-chip.reg { color: var(--fail); background: var(--fail-bg); border-color: rgba(248,81,73,.3); }
+  .chg-chip.fix { color: var(--pass); background: var(--pass-bg); border-color: rgba(63,185,80,.28); }
+  .chg-chip.new { color: var(--kind); background: var(--kind-bg); border-color: rgba(124,110,255,.32); }
+  .chg-chip.sf { color: var(--review); background: var(--review-bg); border-color: rgba(217,161,37,.3); }
+  .chg-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--edge, var(--line)); border-radius: 10px; padding: 12px 14px; margin-top: 10px; }
+  .chg-row.reg { --edge: var(--fail); } .chg-row.fix { --edge: var(--pass); }
+  .chg-row.new { --edge: var(--kind); } .chg-row.sf { --edge: var(--review); }
+  .chg-row.rem { --edge: var(--faint); } .chg-row.stab { --edge: var(--line); opacity: .7; }
+  .chg-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+  .chg-tag.reg { color: var(--fail); background: var(--fail-bg); } .chg-tag.fix { color: var(--pass); background: var(--pass-bg); }
+  .chg-tag.new { color: var(--kind); background: var(--kind-bg); } .chg-tag.sf { color: var(--review); background: var(--review-bg); }
+  .chg-tag.rem, .chg-tag.stab { color: var(--muted); background: var(--error-bg); }
+  .chg-id { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--ink); }
+  .chg-prompt { color: var(--muted); font-size: 13px; }
+  .chg-move { margin-left: auto; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
   .lightbox { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(3,6,12,.9); cursor: zoom-out; }
   .lightbox.open { display: flex; }
   .lightbox img { max-width: 96vw; max-height: 92vh; border-radius: 10px; border: 1px solid var(--line); box-shadow: 0 24px 70px rgba(0,0,0,.6); }
@@ -399,8 +514,19 @@ function toHtml(summary) {
   </div>
   <p class="rate">Overall criterion pass rate: <b>${(summary.overallScore * 100).toFixed(1)}%</b> &nbsp;&middot;&nbsp; click any thumbnail to enlarge.</p>
 
+  <div class="tabs">
+    <button class="tab is-active" onclick="showTab(event,'results')">Results</button>
+    <button class="tab" onclick="showTab(event,'changes')">Changes since last run${changesTabBadge}</button>
+  </div>
+
+  <div id="panel-results" class="panel is-active">
 ${baselineCard}
 ${cards}
+  </div>
+
+  <div id="panel-changes" class="panel">
+${changesPanel}
+  </div>
 
   <footer>Generated by the Part 3 validation harness. Screenshots are captured live from Trupeer during the run.</footer>
 </div>
@@ -415,12 +541,107 @@ ${cards}
     lb.querySelector('img').src = src;
     lb.classList.add('open');
   }
+  function showTab(e, name) {
+    var tabs = document.querySelectorAll('.tab');
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('is-active');
+    var panels = document.querySelectorAll('.panel');
+    for (var j = 0; j < panels.length; j++) panels[j].classList.remove('is-active');
+    e.currentTarget.classList.add('is-active');
+    document.getElementById('panel-' + name).classList.add('is-active');
+  }
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') document.getElementById('lb').classList.remove('open');
   });
 </script>
 </body>
 </html>`;
+}
+
+const CHANGE_META = {
+  regression: { cls: 'reg', label: 'Regression' },
+  'new': { cls: 'new', label: 'New' },
+  fixed: { cls: 'fix', label: 'Fixed' },
+  'still-failing': { cls: 'sf', label: 'Still failing' },
+  removed: { cls: 'rem', label: 'Removed' },
+  stable: { cls: 'stab', label: 'Stable' },
+};
+
+/** A compact "Changes since last run" section for the Markdown report. */
+function changesMarkdown(summary) {
+  const c = summary.changes;
+  if (!c) {
+    return ['## Changes since last run', '', '_Baseline run - no previous run to compare against yet._', ''];
+  }
+  const order = ['regression', 'new', 'fixed', 'still-failing', 'removed', 'stable'];
+  const tally = order
+    .filter((k) => c.counts[k])
+    .map((k) => `${c.counts[k]} ${CHANGE_META[k].label.toLowerCase()}`)
+    .join(', ');
+  const lines = ['## Changes since last run', '', `Compared with the previous run (${c.previousRunAt}): ${tally}.`, ''];
+  const moved = c.items.filter((it) => it.type !== 'stable');
+  if (moved.length) {
+    lines.push('| Change | Prompt | Move |', '| :--- | :--- | :--- |');
+    for (const it of moved) {
+      const move = it.from && it.to ? `${it.from} -> ${it.to}` : it.to ? `new -> ${it.to}` : `was ${it.from}`;
+      lines.push(`| ${CHANGE_META[it.type].label} | \`${it.id}\` | ${move} |`);
+    }
+    lines.push('');
+  }
+  return lines;
+}
+
+/** The "Changes since last run" tab: how each prompt moved versus the previous run. */
+function renderChanges(summary) {
+  const c = summary.changes;
+  if (!c) {
+    return `<div class="empty">This is the <b>baseline run</b> - there is no previous run to compare against yet.
+      Run <code>npm run validate</code> again and this tab will show what changed: regressions,
+      fixes, and anything new. The previous run is remembered in <code>results/latest.json</code>.</div>`;
+  }
+
+  const order = ['regression', 'new', 'fixed', 'still-failing', 'removed', 'stable'];
+  const chips = order
+    .filter((k) => c.counts[k])
+    .map((k) => `<span class="chg-chip ${CHANGE_META[k].cls}">${c.counts[k]} ${CHANGE_META[k].label.toLowerCase()}</span>`)
+    .join('');
+
+  // A "transition" is an outcome flip or a set change - not a check that was
+  // failing and is still failing (that is recurring, worth showing but not new).
+  const transitions =
+    (c.counts.regression ?? 0) + (c.counts.fixed ?? 0) + (c.counts['new'] ?? 0) + (c.counts.removed ?? 0);
+  const recurring = c.counts['still-failing'] ?? 0;
+  let headline;
+  if (transitions === 0 && recurring === 0) {
+    headline = `<div class="empty">Every prompt landed the same outcome as the previous run (<code>${esc(c.previousRunAt)}</code>) - no regressions, no new failures. Steady is good.</div>`;
+  } else if (transitions === 0) {
+    headline = `<div class="empty">No outcomes changed since the previous run (<code>${esc(c.previousRunAt)}</code>) - no regressions. ${recurring} check${recurring > 1 ? 's' : ''} remain${recurring > 1 ? '' : 's'} failing (listed below).</div>`;
+  } else {
+    headline = `<p class="sub">Compared with the previous run (<code>${esc(c.previousRunAt)}</code>). Ordered by severity: regressions first.</p>`;
+  }
+
+  const rows = c.items
+    .map((it) => {
+      const meta = CHANGE_META[it.type];
+      const move =
+        it.from && it.to
+          ? `${esc(it.from)} &rarr; ${esc(it.to)}`
+          : it.to
+            ? `new &rarr; ${esc(it.to)}`
+            : `was ${esc(it.from)}`;
+      const kindTag = it.kind ? `<span class="pill kind">${esc(it.kind)}</span>` : '';
+      return `      <div class="chg-row ${meta.cls}">
+        <span class="chg-tag ${meta.cls}">${meta.label}</span>
+        ${kindTag}
+        <span class="chg-id">${esc(it.id)}</span>
+        <span class="chg-prompt">${esc(it.prompt)}</span>
+        <span class="chg-move">${move}</span>
+      </div>`;
+    })
+    .join('\n');
+
+  return `${headline}
+    <div class="chg-summary">${chips}</div>
+${rows}`;
 }
 
 function renderCard(result) {
