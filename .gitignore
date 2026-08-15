@@ -26,7 +26,3 @@ MY_GUIDE.md
 
 # DOM snapshots for selector tuning (contain account content, large)
 .snapshots/
-
-# Content-moderation finding evidence contains flagged content - keep it local only.
-part1/evidence/content-moderation/*.png
-part1/evidence/content-moderation/*.jpg
