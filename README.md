@@ -39,14 +39,6 @@ for judgment, Gemini Flash for cheap vision), runs read-only security probes, an
 a self-contained HTML report that opens automatically. The rationale is in
 [`docs/PLAN.md`](docs/PLAN.md).
 
-<p align="center">
-  <a href="qa-system/">
-    <img src="qa-system/assets/report-preview.png" alt="The qa-system report: regression / new-bug / fixed / needs-review / stable tallies, priority findings, and a regression card with the evidence diff and an LLM likely-cause" width="820" />
-  </a>
-  <br/>
-  <em>The qa-system report - for each regression, the evidence diff and a model-written likely cause. Try it with <code>npm run demo</code> (no live app or API key needed).</em>
-</p>
-
 ## How it fits together
 
 ```mermaid

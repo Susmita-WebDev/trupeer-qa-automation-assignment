@@ -8,9 +8,9 @@ The full rationale, research, and phased plan are in
 [`docs/PLAN.md`](../docs/PLAN.md). This README is how to run it.
 
 <p align="center">
-  <img src="assets/report-preview.png" alt="The QA run report: regression / new-bug / fixed / needs-review / stable tallies, priority findings, and a regression card carrying the evidence diff and an LLM likely-cause" width="820" />
+  <img src="../assets/part3-changes.png" alt="A Changes-since-last-run view: a tab badge showing a recurring failure, the recurring check listed first, and the stable checks below" width="820" />
   <br/>
-  <em>The report a run produces: what regressed, what got fixed, and - for each regression - the evidence diff (200 to 500, new console error) and a model-written likely cause. From <code>npm run demo</code>, which proves the pipeline on synthetic data with no live app or API key.</em>
+  <em>The run-over-run memory this system is built around, surfaced in the reports: each check classified against the previous run, recurring failures and regressions first. (Shown here in Part 3's report, which shares the same idea.)</em>
 </p>
 
 ## What it does
