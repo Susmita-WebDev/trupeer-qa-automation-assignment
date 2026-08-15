@@ -26,6 +26,27 @@ If the account is behind Google SSO instead (which cannot be automated safely),
 use `AUTH_MODE=manual` and run `npm run auth` once to sign in by hand before
 `npx playwright test`. See [Authentication](#authentication).
 
+### Want to watch it run?
+
+`npx playwright test` runs headless (no visible browser) on purpose - it is
+faster and works anywhere. To **watch the browser drive Trupeer** through every
+test, use either:
+
+```bash
+npm run test:headed    # same tests, browser stays visible the whole time
+npm run test:ui        # interactive runner: click a test and step through it
+```
+
+(Or set `HEADED=1` in `.env`, which makes the plain `npx playwright test` visible
+too.) On the first run a browser always opens briefly to sign in - Trupeer blocks
+headless sign-in - then, in headless mode, the tests continue with no window.
+
+After any run, open the HTML report:
+
+```bash
+npm run report         # or: npx playwright show-report
+```
+
 ## Environment variables
 
 All configuration is read from `.env` (gitignored). Nothing is hardcoded.
