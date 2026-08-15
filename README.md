@@ -137,6 +137,19 @@ expands:
 Re-run it and the numbers change, because every rewrite is a live Trupeer call graded by
 a live judge - nothing is hardcoded.
 
+**Both suites remember the last run and report what changed.** Each report has a
+**Changes since last run** tab that compares this run to the previous one and classifies
+every check as **regression** (was passing, now failing), **fixed**, **new**,
+**still-failing** (recurring), or **stable** - the same run-over-run memory the
+[`qa-system/`](qa-system/) is built around, brought into Part 2 and Part 3 directly. A
+persistent failure surfaces as an orange badge on the tab:
+
+<p align="center">
+  <img src="assets/part3-changes.png" alt="The Changes since last run tab: a tab badge reading 1 recurring, with the recurring failure listed first and the stable checks below" width="820" />
+  <br/>
+  <em>Part 3's real committed run: one recurring failure, four stable. When a check regresses it appears first, in red - Part 2's Playwright suite gets the same view via a custom reporter.</em>
+</p>
+
 ## Design notes
 
 **Credentials are never committed.** Everything sensitive is read from `.env` files, which
