@@ -9,7 +9,7 @@ import { z } from 'zod';
  * everything but ignored the prompt). Collapsing them into one "is it good?"
  * score would hide exactly the failures worth catching.
  *
- * Every criterion demands `evidence` — a quote or concrete observation. A judge
+ * Every criterion demands `evidence` - a quote or concrete observation. A judge
  * forced to cite something is markedly harder to talk into a confident verdict
  * it cannot support, and it makes disagreements auditable by a human later.
  */
@@ -34,7 +34,7 @@ export const CRITERIA = {
   meaningfullyDifferent: {
     label: 'Meaningfully different',
     question:
-      'Is the modified script a genuine rewrite rather than a trivial reword — a few ' +
+      'Is the modified script a genuine rewrite rather than a trivial reword - a few ' +
       'synonyms swapped, punctuation changed, or the original returned verbatim?',
   },
 };
@@ -46,7 +46,7 @@ const CriterionVerdict = z.object({
     .max(1)
     .describe(
       'How confident you are in this verdict, 0 to 1. Use values below 0.75 when the ' +
-        'call is genuinely borderline — do not inflate confidence to seem decisive.',
+        'call is genuinely borderline - do not inflate confidence to seem decisive.',
     ),
   evidence: z
     .string()

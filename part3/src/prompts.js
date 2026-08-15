@@ -6,7 +6,7 @@
  * not against the prompt string, because "make this more professional" is not
  * something a rubric can check literally.
  *
- * The set is deliberately varied in *kind*, not just wording — tone change,
+ * The set is deliberately varied in *kind*, not just wording - tone change,
  * additive change, translation, and compression each stress a different part of
  * the feature. Four near-identical rephrasings would all pass or all fail
  * together and tell us nothing.
@@ -25,8 +25,8 @@ export const TEST_PROMPTS = [
     id: 'professional',
     prompt: 'Make this more professional.',
     intent:
-      'The output should read in a more formal, polished register — fewer colloquialisms, ' +
-      'fewer filler words, tighter sentence construction — while saying the same things ' +
+      'The output should read in a more formal, polished register - fewer colloquialisms, ' +
+      'fewer filler words, tighter sentence construction - while saying the same things ' +
       'as the original. Length may stay roughly the same.',
   },
   {
@@ -46,7 +46,7 @@ export const TEST_PROMPTS = [
       'failure, as is a partial translation.',
     waived: {
       coherent:
-        'Grammatical correctness is judged in Spanish, not English — the criterion is ' +
+        'Grammatical correctness is judged in Spanish, not English - the criterion is ' +
         'applied to the target language.',
     },
   },

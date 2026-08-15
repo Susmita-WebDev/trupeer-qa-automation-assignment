@@ -4,7 +4,7 @@
  * Trupeer is an actively developed product with no stable `data-testid`
  * attributes, so a lone CSS selector is a liability: one class rename and the
  * whole suite goes red for a reason that has nothing to do with a real defect.
- * Each element here is instead declared as an ordered list — accessible role
+ * Each element here is instead declared as an ordered list - accessible role
  * first (the most semantically stable), then test ids, then visible text, then
  * structural CSS as a last resort.
  *

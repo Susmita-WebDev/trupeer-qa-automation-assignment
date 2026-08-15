@@ -58,7 +58,7 @@ export class LoginPage extends BasePage {
     await this.submitButton.click();
   }
 
-  /** True when the sign-in form is on screen — i.e. we are NOT authenticated. */
+  /** True when the sign-in form is on screen - i.e. we are NOT authenticated. */
   async isDisplayed(timeout = 5_000) {
     return this.emailInput.isVisible(timeout);
   }

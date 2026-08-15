@@ -12,7 +12,7 @@ test.describe('Modify Script with AI', () => {
     ).toBeGreaterThan(20);
     expect(
       modified,
-      'The displayed script should differ from the original — an identical script ' +
+      'The displayed script should differ from the original - an identical script ' +
         'means the prompt was accepted but had no effect',
     ).not.toBe(original);
 

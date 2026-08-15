@@ -1,4 +1,4 @@
-# Trupeer.ai — QA Engineer Assignment
+# Trupeer.ai - QA Engineer Assignment
 
 Submission for the Trupeer QA Engineer assignment. Three parts, each in its own folder:
 
@@ -7,17 +7,26 @@ Submission for the Trupeer QA Engineer assignment. Three parts, each in its own 
 | 1 | [`part1/`](part1/) | Exploratory testing session + bug report |
 | 2 | [`part2/`](part2/) | Playwright E2E suite (Page Object Model) |
 | 3 | [`part3/`](part3/) | LLM-as-judge validation harness for "Modify Script with AI" |
+| + | [`qa-system/`](qa-system/) | A regression-aware QA system that ties the three parts together: it remembers every run and reasons about what changed |
+
+Beyond the three required parts, [`qa-system/`](qa-system/) is the piece meant to
+stand out. A normal suite reports today's pass rate; this one remembers prior
+runs, classifies each check as stable / regression / fixed / suspicious-pass /
+new-bug, explains regressions from an evidence diff, routes model work by cost
+(a strong model for judgment, Gemini Flash for cheap vision), runs read-only security
+probes, and emits a self-contained HTML report that opens automatically. The
+design, research, and rationale are in [`PLAN.md`](PLAN.md).
 
 ## Prerequisites
 
 - Node.js 20+
 - A Trupeer account with **one recorded video that has a generated script** (record with the mic enabled)
-- An Anthropic API key (Part 3 only)
+- A strong-model API key for Part 3 and the judging steps
 
 ## Quick start
 
 ```bash
-# Part 2 — E2E suite
+# Part 2 - E2E suite
 cd part2
 npm install
 npx playwright install chromium
@@ -25,7 +34,7 @@ cp .env.example .env      # fill in credentials
 npm run auth              # one-time: capture a logged-in session
 npx playwright test
 
-# Part 3 — AI-augmented validation
+# Part 3 - AI-augmented validation
 cd ../part3
 npm install
 cp .env.example .env      # fill in credentials + ANTHROPIC_API_KEY

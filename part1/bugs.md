@@ -1,14 +1,14 @@
-# Part 1 — Bug Report
+# Part 1 - Bug Report
 
 > **This file is a scaffold, not a submission.** Every bug below is a template to
 > be replaced with something you actually reproduced. Delete any entry you did
-> not observe yourself — an invented bug is worse than a short report.
+> not observe yourself - an invented bug is worse than a short report.
 
 ## Environment
 
 | | |
 | :--- | :--- |
-| **Application** | Trupeer.ai — https://app.trupeer.ai |
+| **Application** | Trupeer.ai - https://app.trupeer.ai |
 | **Build / date tested** | *(date of your session)* |
 | **Browser** | *(e.g. Chrome 131.0.6778.86, 64-bit)* |
 | **OS** | Windows 11 Home Single Language 24H2 |
@@ -37,28 +37,28 @@
 
 ---
 
-## BUG-1 — *(one-line title: what breaks, where)*
+## BUG-1 - *(one-line title: what breaks, where)*
 
 **Severity:** *(Critical / High / Medium / Low)*
 **Area:** *(e.g. Video editor → Modify Script with AI)*
-**Reproducibility:** *(Always / Intermittent — N of M attempts)*
+**Reproducibility:** *(Always / Intermittent - N of M attempts)*
 
 ### Steps to reproduce
 
-1. *(Start from a named state — "Sign in at app.trupeer.ai", not "open the app")*
+1. *(Start from a named state - "Sign in at app.trupeer.ai", not "open the app")*
 2. *(One action per step. Include the exact text you typed and the exact button you clicked.)*
 3.
 4.
 
 ### Expected
 
-*(What should happen, and why you believe that — the product's own UI copy, a
+*(What should happen, and why you believe that - the product's own UI copy, a
 tooltip, or standard behaviour for this kind of control.)*
 
 ### Actual
 
 *(What happened instead. Quote error text verbatim. Note whether anything
-appeared in the browser console or the network tab — a 500 on a specific
+appeared in the browser console or the network tab - a 500 on a specific
 endpoint turns a vague report into an actionable one.)*
 
 ### Impact
@@ -78,7 +78,7 @@ only with scripts over N characters, recovers after a reload, etc.)*
 
 ---
 
-## BUG-2 — *(title)*
+## BUG-2 - *(title)*
 
 **Severity:**
 **Area:**
@@ -98,7 +98,7 @@ only with scripts over N characters, recovers after a reload, etc.)*
 
 ---
 
-## BUG-3 — *(title)*
+## BUG-3 - *(title)*
 
 **Severity:**
 **Area:**
@@ -118,7 +118,7 @@ only with scripts over N characters, recovers after a reload, etc.)*
 
 ---
 
-## BUG-4 — *(title)*
+## BUG-4 - *(title)*
 
 **Severity:**
 **Area:**
@@ -140,7 +140,7 @@ only with scripts over N characters, recovers after a reload, etc.)*
 
 ## Observations that are not bugs
 
-*(Optional but worth keeping — friction points, confusing copy, or things you
+*(Optional but worth keeping - friction points, confusing copy, or things you
 expected to exist and did not. Labelled honestly as observations rather than
 padded into the bug list.)*
 
@@ -150,6 +150,6 @@ padded into the bug list.)*
 
 *(The assignment explicitly asks for this. If "Modify Script with AI" rate-limited
 you, timed out, or errored while you were building Part 2 or 3, record it here
-with the same rigour as a bug, and note how the tests were adapted — e.g. the
+with the same rigour as a bug, and note how the tests were adapted - e.g. the
 extended `AI_RESPONSE_TIMEOUT_MS`, or the settle-detection in
 `EditorPage.waitForScriptToChange`.)*

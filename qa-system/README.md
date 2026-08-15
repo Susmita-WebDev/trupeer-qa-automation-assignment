@@ -21,8 +21,8 @@ The full rationale, research, and phased plan are in the repo-root
   only reported as `fixed` if its assertion still exercised its target. If the
   element it looked for vanished, the green is `suspicious-pass` and goes to
   review, not celebration.
-- **Routes models by cost.** Judgment and triage go to the strong model
-  (Claude); screenshot and layout work go to a cheap vision model (Gemini Flash,
+- **Routes models by cost.** Judgment and triage go to the strong reasoning
+  model; screenshot and layout work go to a cheap vision model (Gemini Flash,
   about 20x cheaper per image). A missing key disables that route and logs it.
 - **Produces a self-contained HTML report** with screenshots, opened
   automatically, regressions first.
@@ -50,7 +50,7 @@ security (HTTP)  ───┘                                    │
 | `src/evidence/` | Evidence bundle type and the pure diff that feeds triage. |
 | `src/checks/` | Check framework and the concrete functional / performance / visual / security checks. |
 | `src/triage/` | Strong-model regression root-cause and fix-intent judgment. |
-| `src/models/` | Provider router: strong (Claude) and vision (Gemini) behind one interface. |
+| `src/models/` | Provider router: strong reasoning and cheap vision (Gemini Flash) behind one interface. |
 | `src/report/` | Self-contained HTML report and auto-open. |
 | `src/run.js` | The orchestrator. |
 

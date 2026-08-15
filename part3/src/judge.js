@@ -15,7 +15,7 @@ How to grade:
 - Grade each criterion independently. A script can follow the instruction perfectly while losing information, or preserve everything while ignoring the instruction. Do not let one verdict pull the others along.
 - Cite evidence for every verdict, including the ones that pass. Quote from the modified script where you can.
 - Be honest about uncertainty. Confidence below 0.75 means "a human should look at this". Borderline calls are common and useful; a judge that reports 0.95 on everything is worthless, because it can no longer flag anything for review.
-- The scripts come from a real screen recording, so the original may contain speech-recognition artifacts, filler words, and false starts. Do not penalise the rewrite for cleaning those up — that is an improvement, not information loss.`;
+- The scripts come from a real screen recording, so the original may contain speech-recognition artifacts, filler words, and false starts. Do not penalise the rewrite for cleaning those up - that is an improvement, not information loss.`;
 function buildUserMessage({ testPrompt, originalScript, modifiedScript }) {
   const rubricLines = CRITERION_KEYS.map((key) => {
     const waiver = testPrompt.waived?.[key];
@@ -49,7 +49,7 @@ Grade the modified script against each rubric criterion.`;
  * Grades one rewrite.
  *
  * Structured outputs constrain the response to the rubric schema, so there is no
- * JSON parsing, no regex extraction and no retry-on-malformed-output loop — the
+ * JSON parsing, no regex extraction and no retry-on-malformed-output loop - the
  * shape is guaranteed by the API rather than hoped for.
  */
 export async function judge(input) {
@@ -73,7 +73,7 @@ export async function judge(input) {
     throw new Error(
       `The judge declined to grade "${input.testPrompt.id}" ` +
         `(category: ${response.stop_details?.category ?? 'unknown'}). ` +
-        'This is a judge-side outcome, not a Trupeer defect — treat it as an ungraded result.',
+        'This is a judge-side outcome, not a Trupeer defect - treat it as an ungraded result.',
     );
   }
   if (!response.parsed_output) {

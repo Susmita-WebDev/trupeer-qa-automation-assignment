@@ -61,7 +61,7 @@ export class DashboardPage extends BasePage {
    * Opens a video's editor.
    *
    * @param name Exact or partial video title. When omitted, opens the first
-   *             video on the dashboard — which keeps the suite runnable on a
+   *             video on the dashboard - which keeps the suite runnable on a
    *             fresh account without editing the config.
    */
   async openVideo(name) {

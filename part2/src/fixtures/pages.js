@@ -20,7 +20,7 @@ export const test = base.extend({
     if (await login.isDisplayed(3_000)) {
       throw new Error(
         'Expected to be signed in but the login screen is showing. ' +
-          'The saved session has probably expired — re-run `npm run auth`.',
+          'The saved session has probably expired - re-run `npm run auth`.',
       );
     }
     await use(dashboard);

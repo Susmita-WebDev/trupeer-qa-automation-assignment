@@ -12,7 +12,7 @@ export default defineConfig({
     timeout: 20 * 1000,
   },
   fullyParallel: false,
-  // One shared account, one video — serial avoids collisions.
+  // One shared account, one video - serial avoids collisions.
   workers: 1,
   retries: process.env.CI ? 1 : 0,
   forbidOnly: !!process.env.CI,
@@ -52,7 +52,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
         // Reuse the session captured by `npm run auth`. Without it the suite
         // still runs, but every test starts signed out and only the login
-        // spec will pass — the console output says so explicitly.
+        // spec will pass - the console output says so explicitly.
         storageState: hasStoredSession ? env.storageStatePath : undefined,
       },
     },
@@ -61,6 +61,6 @@ export default defineConfig({
 if (!hasStoredSession) {
   console.warn(
     `\n[setup] No saved session at ${env.storageStatePath}.\n` +
-      `        Run \`npm run auth\` first — see part2/README.md → Authentication.\n`,
+      `        Run \`npm run auth\` first - see part2/README.md → Authentication.\n`,
   );
 }

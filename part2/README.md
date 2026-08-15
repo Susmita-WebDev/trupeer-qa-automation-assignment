@@ -1,4 +1,4 @@
-# Part 2 — E2E Test Automation (Playwright)
+# Part 2 - E2E Test Automation (Playwright)
 
 A Playwright + JavaScript suite covering login, the video editor, "Modify Script
 with AI", and one further editor feature, plus negative cases.
@@ -35,14 +35,14 @@ SSO from an automated browser is unreliable and, on a real account, arguably
 something a test should not be doing at all. So the suite separates *acquiring* a
 session from *using* one:
 
-- **`AUTH_MODE=password`** — `npm run auth` fills the sign-in form from the env
+- **`AUTH_MODE=password`** - `npm run auth` fills the sign-in form from the env
   vars. Use this if the account has a Trupeer-native password.
-- **`AUTH_MODE=manual`** — `npm run auth` opens a visible browser, you sign in
+- **`AUTH_MODE=manual`** - `npm run auth` opens a visible browser, you sign in
   however the account requires, and press Enter. The session is then saved.
 
 Either way the cookies and local storage land in `.auth/user.json`, which
 `playwright.config.js` loads as `storageState`. Every test therefore starts
-already signed in — faster, and no credentials touch the test bodies.
+already signed in - faster, and no credentials touch the test bodies.
 
 When the session expires, tests fail with an explicit message telling you to
 re-run `npm run auth` rather than an opaque selector timeout.
@@ -62,7 +62,7 @@ readonly modifyScriptButton = this.flexible('Modify Script with AI button', [
 
 `FlexibleLocator.resolve()` returns the first candidate that is attached to the
 DOM. Trupeer ships no stable `data-testid` attributes, so a single CSS selector
-would make the suite fail on cosmetic refactors — noise that trains people to
+would make the suite fail on cosmetic refactors - noise that trains people to
 ignore red builds. With this layering, the suite only breaks when *every*
 strategy stops matching, which usually means something real changed.
 
@@ -75,15 +75,15 @@ failure.
 There are no `waitForTimeout(5000)`-style sleeps standing in for readiness.
 Waits are on observable conditions:
 
-- `waitForAppReady()` — DOM ready, then network idle, then spinner hidden.
-- `waitForLoaded()` — the script panel is visible (it hydrates last).
-- `waitForScriptToChange()` — polls the script panel until the text both
+- `waitForAppReady()` - DOM ready, then network idle, then spinner hidden.
+- `waitForLoaded()` - the script panel is visible (it hydrates last).
+- `waitForScriptToChange()` - polls the script panel until the text both
   **differs from the baseline** and **has stopped changing for two consecutive
   polls**. The AI response streams in token by token; asserting on a
   half-written script is the single most likely source of flake in this suite.
 
 The one bounded `waitForTimeout` is in the empty-prompt negative test, where the
-assertion is that nothing happens — proving a negative needs a settling window.
+assertion is that nothing happens - proving a negative needs a settling window.
 
 ## Test inventory
 
@@ -97,7 +97,7 @@ assertion is that nothing happens — proving a negative needs a settling window
 
 Background was chosen for the "any one other editor feature" requirement because
 its effect is observable in the DOM as a selection state. Trim and zoom render
-to canvas, so verifying them honestly would need visual diffing — a claim of
+to canvas, so verifying them honestly would need visual diffing - a claim of
 "trim works" backed only by "the button was clickable" would be worse than not
 testing it.
 
@@ -116,7 +116,7 @@ Traces, screenshots and video are retained on failure under `test-results/`.
 - **Serial, single worker.** One account with one video means parallel workers
   would fight over the same editor state.
 - **The AI feature is non-deterministic and rate-limited.** Test 03 asserts only
-  that a plausible, different script came back — string matching cannot verify
+  that a plausible, different script came back - string matching cannot verify
   "more concise". Whether the output honoured the prompt's *intent* is Part 3.
 - **Selectors are best-effort until run against the live app.** Run
   `npm run discover` first; anything reported as `MISS` needs a candidate

@@ -11,7 +11,7 @@ import { LoginPage } from '../../part2/src/pages/LoginPage.js';
  * A note on baselines: Trupeer edits the script in place, and the free tier does
  * not expose a reliable "revert to original" control. So each prompt is graded
  * against the script *as it stood immediately before that prompt*, not against
- * the very first version. That is the honest comparison — the judge is asked
+ * the very first version. That is the honest comparison - the judge is asked
  * "did this edit do what was asked?", and chaining edits does not invalidate
  * that question. The true original is still recorded in the report so a human
  * can see how far the script drifted over the run.
@@ -27,7 +27,7 @@ export class TrupeerSession {
     if (!fs.existsSync(env.storageStatePath)) {
       throw new Error(
         `No saved Trupeer session at ${env.storageStatePath}.\n` +
-          'Run `npm run auth` in part2/ first — see part2/README.md → Authentication.',
+          'Run `npm run auth` in part2/ first - see part2/README.md → Authentication.',
       );
     }
     this.browser = await chromium.launch({
@@ -46,7 +46,7 @@ export class TrupeerSession {
     const login = new LoginPage(this.page);
     if (await login.isDisplayed(3_000)) {
       throw new Error(
-        'The saved Trupeer session has expired — re-run `npm run auth` in part2/.',
+        'The saved Trupeer session has expired - re-run `npm run auth` in part2/.',
       );
     }
     this.editor = await dashboard.openVideo(env.videoName || undefined);
@@ -54,7 +54,7 @@ export class TrupeerSession {
     if (this.pristineScript.length < 20) {
       throw new Error(
         'The script panel is empty or nearly empty. Part 3 needs a video with a ' +
-          'generated transcript — re-record with the microphone enabled.',
+          'generated transcript - re-record with the microphone enabled.',
       );
     }
   }
@@ -65,7 +65,7 @@ export class TrupeerSession {
       throw new Error('TrupeerSession.start() must be called before runPrompt().');
     }
 
-    // Reload between prompts so each starts from a clean editor state — a stale
+    // Reload between prompts so each starts from a clean editor state - a stale
     // dialog or in-flight request from the previous prompt would otherwise leak
     // into this one and produce a result nobody can interpret.
     await this.page.reload({

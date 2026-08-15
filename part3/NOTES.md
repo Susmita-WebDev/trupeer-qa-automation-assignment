@@ -5,14 +5,14 @@
 Not a single number, because "confidence" and "correctness" are different things.
 The harness reports three outcomes, and only one of them fails the build:
 
-- **FAIL** — at least one criterion failed with confidence ≥ **0.75**. Blocks CI.
-- **NEEDS REVIEW** — every failure is low-confidence, or everything passed but
+- **FAIL** - at least one criterion failed with confidence ≥ **0.75**. Blocks CI.
+- **NEEDS REVIEW** - every failure is low-confidence, or everything passed but
   the judge hedged. Does not block; goes to a human queue.
-- **PASS** — all four criteria passed with confidence ≥ 0.75.
+- **PASS** - all four criteria passed with confidence ≥ 0.75.
 
 The rule that matters is the second one: **a low-confidence failure is never
 silently converted into a pass.** That is the failure mode that makes an LLM
-judge decorative — it goes green, everyone stops reading it, and it catches
+judge decorative - it goes green, everyone stops reading it, and it catches
 nothing.
 
 I would not gate a merge on this suite at all until I had run it ~50 times
@@ -21,7 +21,7 @@ with human labels. Before that, it runs nightly and reports; it does not block.
 Once I had that data, I would gate on the criteria with the highest measured
 agreement (in my expectation, *meaningfully different* and *preserves core
 information*, both of which are close to mechanical) and keep the more
-subjective ones — *reflects intent* — advisory.
+subjective ones - *reflects intent* - advisory.
 
 There is also a cheaper first line of defence that should gate before any LLM
 does: deterministic checks. Output is non-empty, output is not byte-identical to
@@ -36,7 +36,7 @@ log it as a labelled example. Concretely:
 
 1. Every judgement already carries `evidence` and `reasoning`, so a reviewer can
    see *why* the judge ruled as it did rather than arguing with a bare verdict.
-2. Disagreements go into a small labelled set — the script pair, the prompt, the
+2. Disagreements go into a small labelled set - the script pair, the prompt, the
    human verdict, the judge verdict. That set becomes the regression suite *for
    the judge*.
 3. Diagnose which of three things went wrong:
@@ -51,7 +51,7 @@ log it as a labelled example. Concretely:
 
 The asymmetry matters: a **false FAIL** costs a developer ten minutes and mild
 irritation; a **false PASS** ships a broken feature. So when tuning, I would
-accept a higher false-failure rate to keep false passes near zero — which is
+accept a higher false-failure rate to keep false passes near zero - which is
 exactly what routing uncertain calls to NEEDS REVIEW rather than PASS does.
 
 One caveat I would state plainly to the team: the judge and the feature under

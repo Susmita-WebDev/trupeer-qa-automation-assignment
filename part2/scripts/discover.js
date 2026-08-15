@@ -3,7 +3,7 @@
  *
  * Every locator in this suite is a prioritised list of strategies. This script
  * opens the dashboard and the editor with the saved session and reports, per
- * element, whether it was found — so a selector that has drifted shows up as a
+ * element, whether it was found - so a selector that has drifted shows up as a
  * one-line diagnostic instead of a mid-suite failure.
  *
  *   npm run discover
@@ -67,7 +67,7 @@ async function main() {
   console.log('\nScreenshot written to test-results/discover-editor.png');
   console.log(
     'Any MISS above means that element needs a new candidate strategy in ' +
-      'src/pages/ — inspect it in DevTools and add the selector to the list.\n',
+      'src/pages/ - inspect it in DevTools and add the selector to the list.\n',
   );
   await browser.close();
 }

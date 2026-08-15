@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from '../config.js';
 /**
- * The strong-model provider (Claude). Used for judgment that must be right:
+ * The strong-model provider. Used for judgment that must be right:
  * regression root-cause, fix intent, and, when no cheap vision model is
  * configured, layout description as a fallback.
  */

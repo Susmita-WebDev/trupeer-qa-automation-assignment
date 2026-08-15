@@ -40,7 +40,7 @@ export function score(result) {
     // Passed everything, but the judge hedged somewhere.
     outcome = 'NEEDS REVIEW';
   } else if (failed.every((label) => lowConfidence.includes(label))) {
-    // Every failure is a low-confidence call — not solid enough to gate on.
+    // Every failure is a low-confidence call - not solid enough to gate on.
     outcome = 'NEEDS REVIEW';
   } else {
     outcome = 'FAIL';
@@ -86,7 +86,7 @@ const ICON = {
 };
 export function printToConsole(summary) {
   console.log('\n' + '='.repeat(78));
-  console.log('  Modify Script with AI — validation results');
+  console.log('  Modify Script with AI - validation results');
   console.log('='.repeat(78));
   console.log(
     `  Judge: ${summary.model} (effort: ${summary.effort})   ` +
@@ -94,7 +94,7 @@ export function printToConsole(summary) {
   );
   console.log('-'.repeat(78));
   for (const result of summary.results) {
-    console.log(`\n${ICON[result.outcome]}  ${result.id}  —  "${result.prompt}"`);
+    console.log(`\n${ICON[result.outcome]}  ${result.id}  -  "${result.prompt}"`);
     if (result.error) {
       console.log(`        error: ${result.error}`);
       continue;
@@ -155,7 +155,7 @@ export function writeReports(summary) {
 }
 function toMarkdown(summary) {
   const lines = [
-    '# Modify Script with AI — validation run',
+    '# Modify Script with AI - validation run',
     '',
     `- **Run at:** ${summary.startedAt}`,
     `- **Judge:** \`${summary.model}\` (effort: ${summary.effort})`,
@@ -172,12 +172,12 @@ function toMarkdown(summary) {
   for (const result of summary.results) {
     lines.push(
       `| \`${result.id}\` | ${result.outcome} | ${(result.score * 100).toFixed(0)}% | ` +
-        `${result.failedCriteria.join(', ') || '—'} | ` +
-        `${result.lowConfidenceCriteria.join(', ') || '—'} |`,
+        `${result.failedCriteria.join(', ') || ' - '} | ` +
+        `${result.lowConfidenceCriteria.join(', ') || ' - '} |`,
     );
   }
   for (const result of summary.results) {
-    lines.push('', `## \`${result.id}\` — ${result.outcome}`, '');
+    lines.push('', `## \`${result.id}\` - ${result.outcome}`, '');
     lines.push(`**Prompt:** ${result.prompt}`, '');
     lines.push(`**Intent:** ${result.intent}`, '');
     if (result.error) {

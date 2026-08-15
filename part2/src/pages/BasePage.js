@@ -17,7 +17,7 @@ export class BasePage {
    *
    * Trupeer renders client-side, so `domcontentloaded` fires long before
    * anything useful is on screen. This is an explicit wait on an observable
-   * condition — there are no fixed sleeps anywhere in this suite.
+   * condition - there are no fixed sleeps anywhere in this suite.
    */
   async waitForAppReady(timeout = 30_000) {
     await this.page.waitForLoadState('domcontentloaded', {
@@ -39,7 +39,7 @@ export class BasePage {
         }),
       )
       .catch(() => {
-        /* No spinner rendered — nothing to wait for. */
+        /* No spinner rendered - nothing to wait for. */
       });
   }
 

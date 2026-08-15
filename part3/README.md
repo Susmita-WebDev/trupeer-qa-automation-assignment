@@ -1,4 +1,4 @@
-# Part 3 — AI-Augmented Testing
+# Part 3 - AI-Augmented Testing
 
 An LLM judge embedded in the test infrastructure. Playwright drives Trupeer's
 "Modify Script with AI" through several prompts; each rewrite is then graded by
@@ -12,7 +12,7 @@ asked.
 ## Setup
 
 ```bash
-# Part 2 first — Part 3 reuses its page objects and its saved session.
+# Part 2 first - Part 3 reuses its page objects and its saved session.
 cd ../part2 && npm install && npx playwright install chromium
 cp .env.example .env && npm run auth
 
@@ -40,7 +40,7 @@ Trupeer credentials come from `part2/.env` (Part 3 loads it automatically).
 
 ```
 part2 page objects ──> capture.js ──> judge.js ──> report.js ──> results/
-   (login, editor)      (Playwright)   (Anthropic)   (score)      (json + md)
+   (login, editor)      (Playwright)   (LLM judge)   (score)      (json + md)
 ```
 
 | File | Role |
@@ -68,7 +68,7 @@ information-preservation fails (an over-eager summariser), and vice versa (a
 faithful rewrite that ignored the instruction). Collapsing them into one "is this
 good?" score would hide exactly the failures worth catching.
 
-Every verdict requires **evidence** — a quote or concrete observation, whether it
+Every verdict requires **evidence** - a quote or concrete observation, whether it
 passed or failed. A judge forced to cite something is meaningfully harder to talk
 into a confident verdict it cannot support, and it makes every disagreement
 auditable by a human afterwards.
@@ -97,10 +97,10 @@ loop. The shape is guaranteed by the API rather than hoped for.
 
 | Outcome | Meaning | Exit code effect |
 | :--- | :--- | :--- |
-| `PASS` | All criteria passed at or above the confidence threshold. | — |
+| `PASS` | All criteria passed at or above the confidence threshold. | - |
 | `FAIL` | At least one confident failure. | Exits 1. |
-| `NEEDS REVIEW` | Only low-confidence failures, or a hedged pass. | — |
-| `ERROR` | The rewrite or the grading could not complete. | — |
+| `NEEDS REVIEW` | Only low-confidence failures, or a hedged pass. | - |
+| `ERROR` | The rewrite or the grading could not complete. | - |
 
 A low-confidence failure is never silently upgraded to a pass. The reasoning
 behind the threshold and the CI gating policy is in [`NOTES.md`](NOTES.md).
@@ -119,7 +119,7 @@ A sample run is committed at [`results/`](results/).
 - **Chained edits.** Trupeer rewrites the script in place and the free tier has
   no reliable revert. Each prompt is therefore graded against the script as it
   stood immediately *before* that prompt, not against the pristine original. The
-  question asked of the judge — "did this edit do what was requested?" — stays
+  question asked of the judge - "did this edit do what was requested?" - stays
   valid, but the scripts drift over a run. The pristine version is recorded in
   the report so the drift is visible.
 - **Shared failure modes.** The judge and the feature under test are both LLMs
@@ -128,5 +128,5 @@ A sample run is committed at [`results/`](results/).
 - **Not calibrated yet.** Agreement between this judge and human reviewers has
   not been measured. Until it is, these results inform; they do not gate.
 - **Cost and time.** One run is five browser round trips against a live LLM
-  feature plus five judge calls — a few minutes and a few cents. Fine nightly;
+  feature plus five judge calls - a few minutes and a few cents. Fine nightly;
   too slow for a pre-commit hook.

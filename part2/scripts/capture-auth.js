@@ -1,8 +1,8 @@
 /**
  * One-time sign-in, saved to disk for every later run.
  *
- * AUTH_MODE=password — fills the sign-in form from TRUPEER_EMAIL / TRUPEER_PASSWORD.
- * AUTH_MODE=manual   — opens a visible browser and waits for you to sign in by
+ * AUTH_MODE=password - fills the sign-in form from TRUPEER_EMAIL / TRUPEER_PASSWORD.
+ * AUTH_MODE=manual   - opens a visible browser and waits for you to sign in by
  *                      hand. Use this when the account is behind Google SSO, a
  *                      magic link, or an OTP, none of which can be driven
  *                      reliably (or legitimately) from a test.
@@ -56,7 +56,7 @@ async function main() {
   if (await login.isDisplayed(3_000)) {
     await browser.close();
     throw new Error(
-      'Still on the login screen — the session was not captured. ' +
+      'Still on the login screen - the session was not captured. ' +
         'Check the credentials, or re-run with AUTH_MODE=manual.',
     );
   }
@@ -72,7 +72,7 @@ async function main() {
   if (videos === 0) {
     console.warn(
       '[auth] No videos found. Parts 2 and 3 both need one recorded video ' +
-        'with a generated script — record one before running the suite.',
+        'with a generated script - record one before running the suite.',
     );
   }
   await browser.close();

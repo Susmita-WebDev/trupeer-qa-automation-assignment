@@ -31,7 +31,7 @@ mattered enough to reshape it:
    [HAR / console capture for triage](https://blog.sucuri.net/2025/04/easy-guide-to-saving-har-files-and-console-logs-for-troubleshooting.html))
 
 2. **Vision is roughly 20x cheaper on a small model.** Gemini 2.5 Flash image
-   input is about `$0.15` per 1M tokens versus about `$3` for a Claude Sonnet
+   input is about `$0.15` per 1M tokens versus about `$3` for a flagship
    tier, so "describe this screenshot" and "is this layout broken" belong on the
    cheap model, while semantic judgment and regression triage stay on the strong
    model.
@@ -146,11 +146,11 @@ and the rest of the system runs.
 
 | Task | Model | Why |
 | :--- | :--- | :--- |
-| Script-rewrite judging (Part 3 rubric) | Claude (strong) | Semantic judgment; already built and calibrated here. |
-| Regression root-cause triage | Claude (strong) | Reads a trace diff and reasons about cause. Correctness matters more than cost, and volume is low (only on regressions). |
+| Script-rewrite judging (Part 3 rubric) | Strong model | Semantic judgment; already built and calibrated here. |
+| Regression root-cause triage | Strong model | Reads a trace diff and reasons about cause. Correctness matters more than cost, and volume is low (only on regressions). |
 | Screenshot description / "is this layout broken" | Gemini Flash (cheap vision) | About 20x cheaper per image; the task is perception, not deep reasoning. |
 | Bulk classification (label a console error, tag a bug) | Gemini Flash / Flash-Lite | High volume, low difficulty. |
-| Fix-intent classification | Claude (strong), low effort | Short judgment, but it gates the ledger, so accuracy matters. |
+| Fix-intent classification | Strong model, low effort | Short judgment, but it gates the ledger, so accuracy matters. |
 
 The honest tradeoff: adding Gemini adds a second key and a second SDK. That is
 worth it for the vision cost saving and because the user explicitly wants screen
@@ -227,6 +227,17 @@ The report is a single HTML file with images embedded as data URIs, so it opens
 anywhere with no server. It is opened locally after the run, and it is also
 suitable for publishing as a shareable artifact. Screenshots are captured at
 every meaningful step so each section can show, not just tell.
+
+## Delivery status
+
+All three phases are built and merged to `main`, each through its own reviewed
+`feat/*` branch. One thing shifted from the plan below during the build: the
+regression triage (the "why") landed in Phase 2 rather than Phase 3, because the
+orchestrator needs it and it is core value, not an advanced extra. Phase 3 then
+carried the security probes, AI-validation reuse, and cross-browser instead. The
+deterministic core (ledger classification, evidence diff, report, security
+probes) runs and is verified today; the browser-driven and model-backed checks
+are wired and typechecked, and run once the Part 2 session and model keys exist.
 
 ## Phased delivery
 

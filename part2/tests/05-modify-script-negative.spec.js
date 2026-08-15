@@ -8,7 +8,7 @@ import { test, expect } from '../src/fixtures/pages.js';
  * request with a toast are all acceptable. What is not acceptable is silently
  * accepting the input and destroying the user's script.
  */
-test.describe('Modify Script with AI — negative cases', () => {
+test.describe('Modify Script with AI - negative cases', () => {
   test('an empty prompt is rejected and leaves the script untouched', async ({
     loadedEditor,
   }) => {
@@ -23,7 +23,7 @@ test.describe('Modify Script with AI — negative cases', () => {
     const showedError = await loadedEditor.aiErrorMessage.isVisible(10_000);
     expect(
       wasDisabled || showedError,
-      'An empty prompt should be blocked — either by disabling submit or by showing ' +
+      'An empty prompt should be blocked - either by disabling submit or by showing ' +
         'a validation message. Accepting it silently is a defect.',
     ).toBe(true);
 

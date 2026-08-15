@@ -9,7 +9,7 @@
  * 4. Prints a summary and writes JSON + Markdown reports to results/.
  *
  * Exit code is 1 if any prompt FAILs, 0 otherwise. NEEDS REVIEW does not fail
- * the run — see NOTES.md for why.
+ * the run - see NOTES.md for why.
  */
 import { TrupeerSession } from './src/capture.js';
 import { TEST_PROMPTS } from './src/prompts.js';
@@ -61,7 +61,7 @@ async function main() {
           usage: verdict.usage,
         };
       } catch (error) {
-        // One prompt failing must not abort the run — a rate limit on prompt 2
+        // One prompt failing must not abort the run - a rate limit on prompt 2
         // should not cost us the results for prompts 3 to 5.
         const message = error instanceof Error ? error.message : String(error);
         console.error(`[validate]   error: ${message}`);

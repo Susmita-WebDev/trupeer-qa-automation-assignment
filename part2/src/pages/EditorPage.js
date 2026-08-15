@@ -146,8 +146,8 @@ export class EditorPage extends BasePage {
    * Runs one "Modify Script with AI" round trip and returns before/after text.
    *
    * Completion is detected by polling the script panel until its text differs
-   * from the baseline *and* has stopped changing for two consecutive polls —
-   * the AI response may stream in token by token, and asserting on a
+   * from the baseline *and* has stopped changing for two consecutive polls.
+   * The AI response may stream in token by token, and asserting on a
    * half-written script is the single most likely source of flake here.
    */
   async modifyScriptWithAi(prompt, timeout = env.aiResponseTimeoutMs) {
@@ -187,7 +187,7 @@ export class EditorPage extends BasePage {
     throw new Error(
       `The script did not change within ${timeout}ms of submitting the prompt. ` +
         `UI error shown: ${visibleError}. ` +
-        `If this is reproducible, it is a product bug, not a test bug — ` +
+        `If this is reproducible, it is a product bug, not a test bug - ` +
         `record it in part1/bugs.md.`,
     );
   }
