@@ -1,0 +1,242 @@
+{
+  "startedAt": "2026-08-15T20:20:46.560Z",
+  "provider": "gemini",
+  "model": "gemini-2.5-flash",
+  "effort": null,
+  "confidenceThreshold": 0.75,
+  "results": [
+    {
+      "id": "concise",
+      "prompt": "Make this script more concise.",
+      "intent": "The output should be meaningfully shorter than the original while keeping every substantive point. Cutting filler and redundancy is correct; dropping a distinct fact or step is not.",
+      "originalScript": "Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.",
+      "modifiedScript": "Hi. In this video, I’ll introduce you to antester.com—an AI-powered QA tool that tests websites like a human, with no scripts needed. Just enter a URL, and it explores the app, finds pages and buttons, and creates test cases using five expert personas, such as a developer or product manager. It runs tests in a browser, and an AI judge checks results. You get a report with bugs sorted by severity—no manual test writing required. That’s Antester.",
+      "captureDurationMs": 4597,
+      "judgement": {
+        "reflectsIntent": {
+          "passed": true,
+          "confidence": 0.95,
+          "evidence": "Original script word count: 130. Modified script word count: 79. The modified script is significantly shorter, achieving conciseness as requested. It also maintains all key points, aligning with the intent to keep 'every substantive point'.",
+          "reasoning": "The user asked for a more concise script. The modified script is substantially shorter (79 words vs 130 words, a reduction of ~39%) while still conveying the main message and features of Antester.com."
+        },
+        "coherent": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "The modified script reads smoothly: 'Hi. In this video, I’ll introduce you to antester.com—an AI-powered QA tool that tests websites like a human, with no scripts needed. Just enter a URL, and it explores the app, finds pages and buttons, and creates test cases using five expert personas, such as a developer or product manager. It runs tests in a browser, and an AI judge checks results. You get a report with bugs sorted by severity—no manual test writing required. That’s Antester.'",
+          "reasoning": "The modified script is grammatically correct, flows well, and is easy to understand. There are no awkward phrases or inconsistencies."
+        },
+        "preservesCoreInformation": {
+          "passed": true,
+          "confidence": 0.8,
+          "evidence": "The modified script retains core facts: it's an 'AI-powered QA tool' that 'tests websites like a human, with no scripts needed'. Users 'enter a URL', it 'explores the app, finds pages and buttons, and creates test cases using five expert personas, such as a developer or product manager'. Tests run 'in a browser', an 'AI judge checks results', and a 'report with bugs sorted by severity' is generated. The only specific detail omitted is the 'hours' vs 'minutes' comparison for speed, replaced by 'no manual test writing required' which implies efficiency.",
+          "reasoning": "The script successfully preserves all substantive facts about Antester.com's functionality, input, process, and output. While it streamlines descriptions ('every page and every button' becoming 'pages and buttons', 'senior developer, a real user, and a product manager' becoming 'developer or product manager'), it doesn't lose distinct core information. The omission of the explicit 'hours' vs 'minutes' comparison for results is a reduction in detail for conciseness, but the core benefit of time-saving (no manual writing) is maintained."
+        },
+        "meaningfullyDifferent": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "The original script is 130 words, and the modified script is 79 words. This significant reduction, along with rephrasing and combining sentences (e.g., 'In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent...' became 'In this video, I’ll introduce you to antester.com—an AI-powered QA tool...'), demonstrates a genuine rewrite.",
+          "reasoning": "The modified script is a substantial rewrite, evidenced by its significant reduction in word count and structural changes. It's not merely a few synonyms swapped but a re-engineering of the script for brevity."
+        },
+        "overallAssessment": "The AI successfully made the script more concise as instructed, while preserving all the essential information about Antester.com. The output is coherent and a genuine rewrite. There's a minor loss of specific detail regarding the 'hours vs minutes' comparison for speed, but the overall message of efficiency is still clear through 'no manual test writing required'. This is an excellent response to the user's prompt."
+      },
+      "judgeLatencyMs": 18186,
+      "usage": {
+        "inputTokens": 789,
+        "outputTokens": 863
+      },
+      "outcome": "PASS",
+      "score": 1,
+      "lowConfidenceCriteria": [],
+      "failedCriteria": []
+    },
+    {
+      "id": "professional",
+      "prompt": "Make this more professional.",
+      "intent": "The output should read in a more formal, polished register - fewer colloquialisms, fewer filler words, tighter sentence construction - while saying the same things as the original. Length may stay roughly the same.",
+      "originalScript": "Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.",
+      "modifiedScript": "Hello. In this presentation, I will introduce you to antester.com—an advanced AI-driven QA solution that automates website testing by simulating human behavior, eliminating the need for manual scripting. The process is straightforward. You provide a website URL, and the platform generates a comprehensive bug report. The system autonomously navigates your application, interacting with every page and feature, and creates robust test cases based on five distinct expert personas, including roles such as senior developer, end user, and product manager. All test scenarios are executed within a real browser environment, and an AI-powered evaluator assesses the outcomes, identifying which tests passed or failed. You receive a detailed report categorizing bugs by severity, enabling you to obtain actionable insights in minutes rather than spending hours developing manual tests. This is the capability that Antester delivers.",
+      "captureDurationMs": 4480,
+      "judgement": {
+        "reflectsIntent": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "Original: \"Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report.\"\nModified: \"Hello. In this presentation, I will introduce you to antester.com—an advanced AI-driven QA solution that automates website testing by simulating human behavior, eliminating the need for manual scripting. The process is straightforward. You provide a website URL, and the platform generates a comprehensive bug report.\"",
+          "reasoning": "The modified script successfully transforms the original into a more formal and professional tone. It replaces colloquialisms and simpler phrasing with more sophisticated vocabulary and tighter sentence structures, such as changing 'Hi' to 'Hello', 'in this video' to 'in this presentation', 'show you a tool' to 'introduce you to an advanced AI-driven QA solution', and 'the idea is simple' to 'the process is straightforward'. This consistently fulfills the user's request to 'Make this more professional'."
+        },
+        "coherent": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "The modified script reads smoothly and logically, with no grammatical errors or awkward phrasing. For example, \"The system autonomously navigates your application, interacting with every page and feature, and creates robust test cases based on five distinct expert personas...\" flows well.",
+          "reasoning": "The modified script is highly coherent, grammatically correct, and flows naturally. The language is precise, and the sentence structures are clear and well-formed, enhancing the professional tone."
+        },
+        "preservesCoreInformation": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "Original: \"...AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script.\" Modified: \"...an advanced AI-driven QA solution that automates website testing by simulating human behavior, eliminating the need for manual scripting.\"\nOriginal: \"You give it a URL, and it returns a full bug report.\" Modified: \"You provide a website URL, and the platform generates a comprehensive bug report.\"\nOriginal: \"...generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager.\" Modified: \"...creates robust test cases based on five distinct expert personas, including roles such as senior developer, end user, and product manager.\"",
+          "reasoning": "All the substantive facts and claims from the original script are retained in the modified version. Information about what Antester is, how it works (URL input, autonomous navigation, persona-based testing, real browser execution, AI judgment), what it produces (bug report sorted by severity), and its benefit (time-saving) are all accurately conveyed, just with more professional language. The change from 'real user' to 'end user' is a semantic equivalent in this context."
+        },
+        "meaningfullyDifferent": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "Original: \"Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple.\" Modified: \"Hello. In this presentation, I will introduce you to antester.com—an advanced AI-driven QA solution that automates website testing by simulating human behavior, eliminating the need for manual scripting. The process is straightforward.\"",
+          "reasoning": "The modified script is a substantial rewrite, not just a few words swapped. It uses entirely different vocabulary and sentence structures to convey the same information in a more formal register. For example, 'AI-powered QA agent that tests websites the way a human tester would' became 'advanced AI-driven QA solution that automates website testing by simulating human behavior'. This demonstrates a significant stylistic transformation rather than a trivial rephrasing."
+        },
+        "overallAssessment": "The AI script-rewriting feature performed exceptionally well. It perfectly understood the instruction to make the script more professional and executed it thoroughly across all aspects of language, tone, and structure. The resulting script is coherent, retains all critical information, and is meaningfully different from the original, achieving a polished and formal presentation."
+      },
+      "judgeLatencyMs": 15108,
+      "usage": {
+        "inputTokens": 858,
+        "outputTokens": 995
+      },
+      "outcome": "PASS",
+      "score": 1,
+      "lowConfidenceCriteria": [],
+      "failedCriteria": []
+    },
+    {
+      "id": "call-to-action",
+      "prompt": "Add a call to action at the end.",
+      "intent": "The output should keep the original script essentially intact and append a closing call to action (e.g. inviting the viewer to sign up, try the product, or get in touch). Rewriting the whole script is not what was asked for.",
+      "originalScript": "Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.",
+      "modifiedScript": "Hi there! In this video, I'll introduce you to a tool called antester.com. It's an AI-powered QA agent that tests websites just like a human tester would, and you don't need to write any scripts. Here's how it works: you provide a URL, and it gives you a comprehensive bug report. It automatically explores your entire app, clicks through every page and button, and generates realistic test cases using five different expert personas—think senior developer, real user, product manager, and more. All these tests are carried out in a real browser, and then an AI judge assesses which tests pass and which fail. In the end, you receive a straightforward report, with bugs prioritized by their severity. So instead of dedicating hours to writing tests, you just paste a link and get feedback within minutes. That's Antester. Give it a try today and see how much time you can save on testing!",
+      "captureDurationMs": 5545,
+      "judgement": {
+        "reflectsIntent": {
+          "passed": true,
+          "confidence": 0.95,
+          "evidence": "The modified script ends with: 'Give it a try today and see how much time you can save on testing!' This is a clear call to action appended to the end of the script.",
+          "reasoning": "The user asked to add a call to action at the end, and the model successfully added a relevant call to action at the conclusion of the script."
+        },
+        "coherent": {
+          "passed": true,
+          "confidence": 0.95,
+          "evidence": "The modified script reads fluently and logically, without any grammatical errors or awkward phrasing.",
+          "reasoning": "The generated script maintains a consistent tone, flows well from sentence to sentence, and is grammatically correct."
+        },
+        "preservesCoreInformation": {
+          "passed": true,
+          "confidence": 0.95,
+          "evidence": "All key features and benefits of antester.com mentioned in the original script, such as being an AI-powered QA agent, testing like a human, not needing scripts, using a URL for a bug report, exploring the app, generating test cases with five personas, running tests in a real browser, AI judging results, and getting a prioritized report quickly, are retained in the modified script.",
+          "reasoning": "The modified script accurately conveys all the substantive facts and claims present in the original script, without any loss of important details."
+        },
+        "meaningfullyDifferent": {
+          "passed": false,
+          "confidence": 0.8,
+          "evidence": "The original script started with 'Hi. In this video, I’m going to show you a tool...' and continued with specific phrasing like 'The idea is simple. You give it a URL, and it returns a full bug report.' The modified script changed this to 'Hi there! In this video, I'll introduce you to a tool...' and 'Here's how it works: you provide a URL, and it gives you a comprehensive bug report.' These are stylistic rephrasing changes that go beyond just appending the call to action.",
+          "reasoning": "The user instruction was to 'Add a call to action at the end' and the 'intended_outcome' explicitly stated, 'Rewriting the whole script is not what was asked for.' While the call to action was added (reflectsIntent pass), the model also performed a general rephrasing of the existing content throughout the script. These changes, although not a complete overhaul, make the existing content 'meaningfully different' from the original's phrasing, which was not requested and goes against the instruction to keep the script 'essentially intact' besides the addition."
+        },
+        "overallAssessment": "The AI successfully added the requested call to action, and the script remains coherent and preserves all core information. However, the model also unnecessarily rephrased the existing content of the script, which contradicts the user's implicit expectation (and explicit mention in 'intended_outcome') to keep the original script essentially intact, except for the addition."
+      },
+      "judgeLatencyMs": 19703,
+      "usage": {
+        "inputTokens": 899,
+        "outputTokens": 681
+      },
+      "outcome": "FAIL",
+      "score": 0.75,
+      "lowConfidenceCriteria": [],
+      "failedCriteria": [
+        "Meaningfully different"
+      ]
+    },
+    {
+      "id": "translate-spanish",
+      "prompt": "Translate this script to Spanish.",
+      "intent": "The output should be the same script rendered in fluent Spanish, preserving meaning, structure and any product names. Output that remains in English is a failure, as is a partial translation.",
+      "originalScript": "Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.",
+      "modifiedScript": "Hola. En este video, voy a mostrarte una herramienta llamada antester.com. Es un agente de control de calidad impulsado por IA que prueba sitios web como lo haría una persona, sin necesidad de escribir ni una sola línea de código. La idea es sencilla. Le das una URL y te devuelve un informe completo de errores. Detrás de escena, explora toda la aplicación por sí mismo, encuentra cada página y cada botón, y genera casos de prueba realistas usando cinco diferentes perfiles expertos, como un desarrollador senior, un usuario real y una persona responsable del producto. Realiza todas estas pruebas en un navegador real, y una IA determina qué ha pasado y qué ha fallado. Al final, obtienes un informe claro con todos los errores ordenados por gravedad. Así que, en lugar de pasar horas escribiendo pruebas, simplemente pegas un enlace y obtienes resultados en minutos. Eso es Antester.",
+      "captureDurationMs": 4456,
+      "judgement": {
+        "reflectsIntent": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "Original: 'Translate this script to Spanish.' Modified Script: 'Hola. En este video, voy a mostrarte una herramienta llamada antester.com. Es un agente de control de calidad impulsado por IA que prueba sitios web como lo haría una persona...' (The entire script is in Spanish).",
+          "reasoning": "The user explicitly asked for the script to be translated into Spanish. The modified script is a complete translation into Spanish, preserving the product name 'antester.com' and 'Antester' as instructed. No English remains."
+        },
+        "coherent": {
+          "passed": true,
+          "confidence": 0.95,
+          "evidence": "Modified Script: 'Es un agente de control de calidad impulsado por IA que prueba sitios web como lo haría una persona, sin necesidad de escribir ni una sola línea de código.' and 'Al final, obtienes un informe claro con todos los errores ordenados por gravedad.'",
+          "reasoning": "The Spanish translation is fluent and grammatically correct. The sentences flow naturally, and the vocabulary is appropriate for the context."
+        },
+        "preservesCoreInformation": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "Original: 'It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script.' Modified: 'Es un agente de control de calidad impulsado por IA que prueba sitios web como lo haría una persona, sin necesidad de escribir ni una sola línea de código.' Original: 'generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager.' Modified: 'genera casos de prueba realistas usando cinco diferentes perfiles expertos, como un desarrollador senior, un usuario real y una persona responsable del producto.'",
+          "reasoning": "All substantive facts, steps, and claims from the original script have been accurately preserved in the Spanish translation. Details like 'AI-powered QA agent,' 'human tester would,' 'no scripts,' 'give it a URL, get a bug report,' 'explores the entire app,' 'finds every page and button,' 'five different expert personas,' 'senior developer, real user, product manager,' 'runs tests in a real browser,' 'AI judge determines pass/fail,' 'clean report sorted by seriousness,' 'paste a link and get results in minutes' are all present and correctly translated."
+        },
+        "meaningfullyDifferent": {
+          "passed": true,
+          "confidence": 1,
+          "evidence": "The entire script has been translated from English to Spanish. For example, 'Hi. In this video, I’m going to show you a tool called antester.com' became 'Hola. En este video, voy a mostrarte una herramienta llamada antester.com.'",
+          "reasoning": "The script is a complete translation into a different language, which inherently makes it meaningfully different from the original English script."
+        },
+        "overallAssessment": "The AI script-rewriting feature successfully translated the entire script into fluent and grammatically correct Spanish, preserving all core information and product names as requested. It fully reflects the user's intent."
+      },
+      "judgeLatencyMs": 6341,
+      "usage": {
+        "inputTokens": 905,
+        "outputTokens": 725
+      },
+      "outcome": "PASS",
+      "score": 1,
+      "lowConfidenceCriteria": [],
+      "failedCriteria": []
+    },
+    {
+      "id": "beginner-friendly",
+      "prompt": "Rewrite this so a complete beginner can follow it, explaining any jargon.",
+      "intent": "The output should explain or replace technical terms and add brief context where the original assumed knowledge. It may be longer than the original. It must not become inaccurate in the process of simplifying.",
+      "originalScript": "Hi. In this video, I’m going to show you a tool called antester.com. It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script. The idea is simple. You give it a URL, and it returns a full bug report. Behind the scenes, it explores the entire app on its own, finds every page and every button, and generates realistic test cases using five different expert personas, like a senior developer, a real user, and a product manager. It runs all of these tests in a real browser, and an AI judge determines what actually passed and what failed. At the end, you get a clean report with all the bugs sorted by how serious they are. So instead of spending hours writing tests, you simply paste a link and get results in minutes. That’s Antester.",
+      "modifiedScript": "Hello! In this video, I'm going to introduce you to a website called antester.com. It's a smart tool powered by artificial intelligence that checks websites for problems, just like a real person would. The best part is, you don't have to know how to write any special computer instructions or code. Here's how it works: you simply type in the web address you want to test. The tool then explores the whole website by itself, clicking on every page and button it finds. It creates different pretend users, like someone who builds websites, someone who just uses websites, or someone who manages the product, to make sure it covers many points of view. All these checks happen in an actual web browser, just like the ones you use every day. A special AI program then reviews each test to decide what worked and what didn't. After it's done, you'll get an easy-to-read report that shows all the issues it found, organized by how serious they are. So, instead of spending lots of time trying to test everything yourself, you just paste the web address and get the results quickly. That's what Antester does.",
+      "captureDurationMs": 5284,
+      "judgement": {
+        "reflectsIntent": {
+          "passed": true,
+          "confidence": 0.98,
+          "evidence": "Original: 'AI-powered QA agent that tests websites... without anyone writing a single script.' Modified: 'smart tool powered by artificial intelligence that checks websites for problems, just like a real person would. The best part is, you don't have to know how to write any special computer instructions or code.' Original: 'You give it a URL'. Modified: 'you simply type in the web address'. Original: 'generates realistic test cases using five different expert personas'. Modified: 'creates different pretend users, like someone who builds websites, someone who just uses websites, or someone who manages the product, to make sure it covers many points of view.'",
+          "reasoning": "The modified script successfully rephrases technical terms like 'QA agent', 'script', 'URL', 'test cases', and 'personas' into language a beginner can understand. It also adds context where the original assumed knowledge, such as explaining what a 'real browser' is ('just like the ones you use every day')."
+        },
+        "coherent": {
+          "passed": true,
+          "confidence": 0.99,
+          "evidence": "The modified script flows smoothly and logically, using simple and direct language. For example: 'Hello! In this video, I'm going to introduce you to a website called antester.com. It's a smart tool powered by artificial intelligence that checks websites for problems, just like a real person would. The best part is, you don't have to know how to write any special computer instructions or code.'",
+          "reasoning": "The rewritten script is fluent, grammatically correct, and easy to follow. It maintains a clear narrative throughout."
+        },
+        "preservesCoreInformation": {
+          "passed": true,
+          "confidence": 0.95,
+          "evidence": "All key facts about Antester (it's an AI-powered website tester, no scripting needed, takes a URL, returns a bug report, explores the site, uses personas like developer/user/PM, runs in a real browser, AI judges results, report sorted by severity, saves time) are present in the modified script. The only minor detail omitted is the specific number 'five' for personas, which does not diminish the core information for a beginner.",
+          "reasoning": "The script retains all substantive facts, steps, and claims from the original. The simplification process did not lead to any significant loss of information, only the removal of a specific number ('five personas') which is a negligible detail in this context."
+        },
+        "meaningfullyDifferent": {
+          "passed": true,
+          "confidence": 0.98,
+          "evidence": "Original: 'It’s an AI-powered QA agent that tests websites the way a human tester would, without anyone writing a single script.' Modified: 'It's a smart tool powered by artificial intelligence that checks websites for problems, just like a real person would. The best part is, you don't have to know how to write any special computer instructions or code.' The structure, vocabulary, and sentence complexity have been significantly altered to simplify the text.",
+          "reasoning": "The modified script is a substantial rewrite, employing simpler vocabulary, breaking down complex sentences, and rephrasing technical concepts rather than just swapping a few synonyms. It clearly targets a different audience with its language and explanations."
+        },
+        "overallAssessment": "The AI script-rewriting feature did an excellent job of simplifying the original script for a complete beginner, explaining jargon and adding context without sacrificing core information. The rewritten script is coherent, accurate, and meaningfully different from the original, successfully fulfilling all aspects of the user's instruction."
+      },
+      "judgeLatencyMs": 13024,
+      "usage": {
+        "inputTokens": 942,
+        "outputTokens": 823
+      },
+      "outcome": "PASS",
+      "score": 1,
+      "lowConfidenceCriteria": [],
+      "failedCriteria": []
+    }
+  ],
+  "totals": {
+    "PASS": 4,
+    "FAIL": 1,
+    "NEEDS REVIEW": 0,
+    "ERROR": 0
+  },
+  "overallScore": 0.95,
+  "totalTokens": {
+    "input": 4393,
+    "output": 4087
+  }
+}
