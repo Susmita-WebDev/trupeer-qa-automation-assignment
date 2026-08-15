@@ -16,3 +16,7 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# qa-system per-run artefacts (traces, screenshots, generated reports).
+# The committed state/ledger.json and baselines/ are the durable memory.
+qa-system/runs/

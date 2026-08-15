@@ -1,0 +1,19 @@
+{
+  "name": "trupeer-qa-system",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Regression-aware QA system: remembers prior runs and reasons about change",
+  "scripts": {
+    "demo": "node src/demo.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
+    "@google/genai": "^2.17.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "dotenv": "^16.4.7"
+  }
+}
