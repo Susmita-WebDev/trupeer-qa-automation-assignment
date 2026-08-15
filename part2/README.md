@@ -50,6 +50,21 @@ npm run report         # or: npx playwright show-report
 
 (Auto-open is skipped on CI; set `PWTEST_OPEN=never` to skip it locally too.)
 
+### Regression-aware "run memory" report
+
+A custom reporter ([`reporters/run-memory.js`](reporters/run-memory.js)) writes a
+second, companion report that Playwright's own report cannot: **what changed since
+the last run**. Every run is remembered on disk (`run-memory/history/`), and the
+next run is compared against it, classifying each test as **regression** (was
+passing, now failing), **fixed**, **new**, **still-failing** (recurring), or
+**stable**. It opens automatically alongside the standard report, with a
+`Changes since last run` tab and an orange badge when something regressed.
+
+This is the same run-over-run memory the [`qa-system/`](../qa-system/) is built
+around, brought directly into the E2E suite. Output lives in `run-memory/` and is
+gitignored (a run artifact, like `playwright-report/`); the first run is a baseline
+with nothing to compare against.
+
 ## Environment variables
 
 All configuration is read from `.env` (gitignored). Nothing is hardcoded.

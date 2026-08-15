@@ -9,6 +9,9 @@ blob-report/
 playwright/.cache/
 .auth/
 
+# Part 2 run-memory reporter output (regenerated each run, remembered locally)
+part2/run-memory/
+
 # Build output
 dist/
 *.tsbuildinfo

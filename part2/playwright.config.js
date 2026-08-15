@@ -29,6 +29,9 @@ export default defineConfig({
       },
     ],
     ['json', { outputFile: 'test-results/results.json' }],
+    // Regression-aware companion report: remembers each run and shows what
+    // changed since last time. Opens automatically (unless CI / PWTEST_OPEN=never).
+    ['./reporters/run-memory.js'],
   ],
 
   use: {
