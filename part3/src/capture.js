@@ -48,10 +48,17 @@ export class TrupeerSession {
           'generated transcript - re-record with the microphone enabled.',
       );
     }
+
+    fs.mkdirSync(config.screenshotsDir, { recursive: true });
+    await this.#screenshot('_baseline');
   }
 
-  /** Runs one prompt against the pristine script and returns the before/after pair. */
-  async runPrompt(prompt) {
+  /**
+   * Runs one prompt against the pristine script and returns the before/after
+   * pair plus a screenshot of the editor showing the AI result. `id` names the
+   * screenshot file so the report can link to it.
+   */
+  async runPrompt(prompt, id) {
     if (!this.editor || !this.page) {
       throw new Error('TrupeerSession.start() must be called before runPrompt().');
     }
@@ -65,11 +72,27 @@ export class TrupeerSession {
     await this.editor.waitForLoaded();
 
     const result = await this.editor.modifyScriptWithAi(prompt);
+    // The rewrite is on screen now, with Keep/Discard still pending - capture it
+    // as evidence before the next prompt resets the editor.
+    const screenshotPath = await this.#screenshot(id);
     return {
       original: result.original,
       modified: result.modified,
       durationMs: result.durationMs,
+      screenshotPath,
     };
+  }
+
+  /** Saves a viewport screenshot into results/screenshots and returns its path. */
+  async #screenshot(id) {
+    const file = path.join(config.screenshotsDir, `${id}.png`);
+    try {
+      await this.page.screenshot({ path: file });
+      return file;
+    } catch {
+      // A screenshot is evidence, not the test - never let it fail the run.
+      return null;
+    }
   }
 
   async stop() {

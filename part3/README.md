@@ -57,7 +57,7 @@ part2 page objects ──> capture.js ──> judge.js ──> report.js ──>
 | `src/rubric.js` | The four criteria, as a Zod schema the judge must fill in. |
 | `src/capture.js` | Drives Trupeer via Part 2's page objects. |
 | `src/judge.js` | Calls the judge with structured outputs. |
-| `src/report.js` | Turns verdicts into outcomes; writes console + JSON + Markdown. |
+| `src/report.js` | Turns verdicts into outcomes; writes console + HTML + Markdown + JSON. |
 | `validate.js` | Orchestrates the run. |
 
 ## Rubric design
@@ -87,9 +87,12 @@ better" would all pass or all fail together and tell us nothing.
 
 ## Structured output
 
-The judge's response is constrained to the rubric schema via `output_config.format`,
-so there is no JSON parsing, no regex extraction, and no retry-on-malformed-output
-loop. The shape is guaranteed by the API rather than hoped for.
+The judge's response is constrained to the rubric schema at the API level, so
+there is no regex extraction and no retry-on-malformed-output loop - the shape is
+guaranteed rather than hoped for. The `anthropic` provider uses
+`output_config.format`; the `gemini` provider uses `responseJsonSchema` and the
+result is then re-validated against the same Zod rubric, so a malformed verdict
+fails loudly instead of silently mis-scoring.
 
 ```jsonc
 {
@@ -115,12 +118,22 @@ behind the threshold and the CI gating policy is in [`NOTES.md`](NOTES.md).
 
 ## Output
 
-`results/latest.json` and `results/latest.md` after every run, plus a
-timestamped copy of each. The Markdown report includes the full original and
-modified scripts per prompt, so a human reviewer can check the judge's work
-without re-running anything.
+Every run writes three views of the same result to `results/`, plus a
+timestamped copy of each:
 
-A sample run is committed at [`results/`](results/).
+| File | For |
+| :--- | :--- |
+| `latest.html` | **Start here.** A self-contained report - result tallies, the per-criterion verdicts with confidence, and a live screenshot of the editor for every prompt. Opens straight from disk; the run also opens it for you (set `OPEN_REPORT=0` to suppress). |
+| `latest.md` | The same content in Markdown, for reading on GitHub or in a diff. |
+| `latest.json` | The raw structured result, for CI to gate on. |
+
+The HTML and Markdown reports both embed the full original and modified scripts
+per prompt and a **screenshot captured live from Trupeer** (saved under
+`results/screenshots/`), so a reviewer can check the judge's work - and see the
+feature actually ran - without re-running anything.
+
+A sample run is committed at [`results/`](results/) - open
+[`results/latest.html`](results/latest.html) in a browser.
 
 ## Honest limitations
 

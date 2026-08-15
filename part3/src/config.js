@@ -4,13 +4,16 @@ import dotenv from 'dotenv';
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const PART3_ROOT = path.resolve(here, '..');
 
-// Part 2's .env carries the Trupeer credentials; part3/.env adds the judge's.
-dotenv.config({
-  path: path.resolve(PART3_ROOT, '..', 'part2', '.env'),
-});
+// Precedence: the real environment wins, then part3/.env, then part2/.env.
+// dotenv never overwrites a key that is already set, so loading part3 before
+// part2 (and neither with override) gives exactly that order. This matters for
+// CLI flags: `validate:headed` exports HEADED=1, and that must beat the HEADED=0
+// sitting in part3/.env - otherwise the flag would silently do nothing.
 dotenv.config({
   path: path.join(PART3_ROOT, '.env'),
-  override: true,
+});
+dotenv.config({
+  path: path.resolve(PART3_ROOT, '..', 'part2', '.env'),
 });
 function optional(name, fallback) {
   return process.env[name]?.trim() || fallback;
@@ -69,5 +72,13 @@ export const config = {
 
   confidenceThreshold: Number(optional('CONFIDENCE_THRESHOLD', '0.75')),
   resultsDir: path.resolve(PART3_ROOT, optional('RESULTS_DIR', 'results')),
+  get screenshotsDir() {
+    return path.join(this.resultsDir, 'screenshots');
+  },
   headed: optional('HEADED', '0') === '1',
+
+  // Open the HTML report in the default browser when the run finishes. On by
+  // default so a reviewer sees results without hunting for a file; set
+  // OPEN_REPORT=0 (or CI) to suppress it for headless / automated runs.
+  openReport: optional('OPEN_REPORT', '1') === '1' && !process.env.CI,
 };
