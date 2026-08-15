@@ -81,7 +81,10 @@ async function main() {
   printToConsole(summary);
   const paths = writeReports(summary);
   console.log(
-    `Reports written:\n  ${paths.html}\n  ${paths.markdown}\n  ${paths.json}\n`,
+    '\nReport ready. Open this in a browser to see the full results,\n' +
+      'the per-prompt verdicts, and a screenshot of each rewrite:\n\n' +
+      `  ${paths.html}\n\n` +
+      `Also written: ${paths.markdown} (Markdown) and ${paths.json} (JSON).\n`,
   );
   openReport(paths.html);
   if (summary.totals.ERROR > 0) {
