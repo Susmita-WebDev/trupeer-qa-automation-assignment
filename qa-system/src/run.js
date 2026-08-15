@@ -16,6 +16,9 @@ import { runChecks } from './checks/runner.js';
 import { FUNCTIONAL_CHECKS } from './checks/functional.js';
 import { PERFORMANCE_CHECKS } from './checks/performance.js';
 import { VISUAL_CHECKS } from './checks/visual.js';
+import { aiValidationChecks } from './checks/ai-validation.js';
+import { runSecurityChecks } from './checks/security.js';
+import { configuredExtraEngines, crossBrowserSmoke } from './checks/cross-browser.js';
 import { ModelRouter } from './models/router.js';
 import { compareRuns } from './ledger/classify.js';
 import {
@@ -63,14 +66,35 @@ async function main() {
     results.push(...(await runChecks(PERFORMANCE_CHECKS, ctx)));
     console.log('\n[run] Visual checks');
     results.push(...(await runChecks(VISUAL_CHECKS, ctx)));
+    console.log('\n[run] AI script validation');
+    results.push(...(await runChecks(aiValidationChecks(), ctx)));
   } finally {
     tracePath = await session.stop();
   }
 
-  // Point every check's evidence at the run's trace for step-by-step replay.
+  // Security probes are HTTP-only and need no browser session.
+  console.log('\n[run] Security probes (read-only)');
+  const security = await runSecurityChecks(config.targetUrl);
+  for (const r of security)
+    console.log(`  [${r.outcome.toUpperCase().padEnd(7)}] ${r.title}`);
+  results.push(...security);
+
+  // Cross-browser smoke, opt-in via CROSS_BROWSER (needs webkit/firefox installed).
+  const extraEngines = configuredExtraEngines();
+  if (extraEngines.length > 0) {
+    console.log(`\n[run] Cross-browser smoke: ${extraEngines.join(', ')}`);
+    results.push(...(await crossBrowserSmoke(runDir, extraEngines)));
+  }
+
+  // Point the primary-session checks at the run's trace for step-by-step replay.
+  // Security checks are HTTP-only and cross-browser checks keep their own traces.
   if (tracePath) {
     const rel = path.relative(runDir, tracePath);
-    for (const r of results) r.evidence.tracePath = rel;
+    for (const r of results) {
+      if (r.category !== 'security' && !r.id.startsWith('crossbrowser.')) {
+        r.evidence.tracePath = rel;
+      }
+    }
   }
   const snapshot = {
     runId: id,

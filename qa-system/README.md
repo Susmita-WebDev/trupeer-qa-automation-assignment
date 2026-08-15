@@ -74,6 +74,15 @@ npm run run         # a full run against the live app (needs the Part 2 session)
 npm run security    # just the read-only security probes against the public URL
 ```
 
+A full `npm run run` executes, in order: functional checks, performance,
+visual (pixel baseline + cheap-model layout sanity), AI script validation
+(reusing Part 3's prompts and rubric), read-only security probes, and an opt-in
+cross-browser smoke. It then compares against the last run, explains any
+regression, updates the ledger, and writes and opens the report.
+
+`npm run security` is fully self-contained and needs no login, no browser, and
+no key. It is the quickest way to see the system do real work.
+
 `npm run demo` is the fastest way to see what the system does: it builds a
 previous run and a current run containing a regression, a genuine fix, a
 suspicious pass and a new bug, then runs the real classification, evidence diff,
@@ -93,6 +102,8 @@ Trupeer credentials come from `part2/.env`. `qa-system/.env` adds:
 | `TARGET_URL` | no | Public URL for security probes. Defaults to `https://app.trupeer.ai`. |
 | `OPEN_REPORT` | no | `1` to auto-open the report. |
 | `HEADED` | no | `1` to watch the browser. |
+| `AI_PROMPTS` | no | Comma-separated Part 3 prompt ids to validate. Defaults to `concise`. |
+| `CROSS_BROWSER` | no | `1`, or `firefox,webkit`, to run the cross-browser smoke. Off by default. |
 
 ## The memory on disk
 

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { chromium } from '@playwright/test';
+import { chromium, firefox, webkit } from '@playwright/test';
 import { config } from '../config.js';
 // Reuse Part 2's config and page objects rather than reimplementing the flows.
 import { env as part2Env } from '../../../part2/src/config/env.js';
@@ -34,7 +34,12 @@ export class BrowserSession {
           'Run `npm run auth` in part2/ first.',
       );
     }
-    this.browser = await chromium.launch({
+    const engines = {
+      chromium,
+      firefox,
+      webkit,
+    };
+    this.browser = await engines[this.browserName].launch({
       headless: !config.headed,
     });
     this.context = await this.browser.newContext({
