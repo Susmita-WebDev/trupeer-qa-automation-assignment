@@ -131,7 +131,7 @@ Two related symptoms point at one cause - the editor's font/asset loading is not
 Low: no functional breakage, but it is a real per-load wasted round trip, avoidable bandwidth, and noise in Trupeer's own error monitoring. Grouped as one finding because both symptoms are the same misconfiguration.
 
 ### Evidence
-[`evidence/manifest-404/`](evidence/manifest-404/): the Network 404 (`network-404.png`) and Console 404 (`console-404.png`).
+[`evidence/manifest-404/`](evidence/manifest-404/): the Network 404 (`network-404.png`) and Console 404 (`console-404.png`). The 404 also appears in the live capture at [`evidence/dev-console/`](evidence/dev-console/).
 
 ---
 
@@ -140,7 +140,7 @@ Low: no functional breakage, but it is a real per-load wasted round trip, avoida
 Verified against Trupeer's own JavaScript bundles (a browser-extension's traffic
 and third-party analytics were checked and deliberately excluded).
 
-- **DEV-1 - App-level error on editor load, then a silent retry.** The console logs `ensureToken: attempt 0 failed  Error: Invariant: missing action dispatcher.` on editor load. This is a Next.js Server-Actions race - a token fetch fires before the action dispatcher is ready, fails, and retries. It recovers, so impact is low, but it is a real error on the happy path and worth tightening. *(Confirmed in Trupeer's bundle: `chunks/350-*.js`.)*
+- **DEV-1 - App-level error on editor load, then a silent retry.** The console logs `ensureToken: attempt 0 failed  Error: Invariant: missing action dispatcher.` on editor load, with a stack trace into `app.trupeer.ai/_next/static/chunks/635-*.js`. This is a Next.js Server-Actions race - a token fetch fires before the action dispatcher is ready, fails, and retries. It recovers, so impact is low, but it is a real error on the happy path and worth tightening. **Evidence:** [`evidence/dev-console/`](evidence/dev-console/) (a filtered, live Playwright capture that also corroborates BUG-4).
 
 - **DEV-2 - No graceful degradation when a third-party onboarding script is blocked.** Trupeer loads Userflow (`js.userflow.com`). When that request is blocked - which is common, since ad-blockers and privacy extensions block it - the failure surfaces as an **uncaught page exception** (`Could not load Userflow.js`) rather than being caught and ignored. The core app still works, but an uncaught error on load for a large slice of real users is avoidable. *(Confirmed in Trupeer's bundle: `chunks/4220-*.js`, `9689-*.js`, `layout-*.js`.)*
 
