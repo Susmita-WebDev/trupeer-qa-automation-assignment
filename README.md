@@ -121,12 +121,22 @@ Full setup, environment variables, and troubleshooting live in each part's READM
   </tr>
 </table>
 
-The full report, including a no-content-moderation finding, is in
-[`part1/bugs.md`](part1/bugs.md). Beyond the user session, a passive, non-destructive
+The [full report](part1/bugs.md) **leads with a prompt-injection finding**: a two-step
+injection makes "Modify Script with AI" leak its *entire system prompt*, defeating its
+own confidentiality and injection-defense rules (BUG-1) - and the leaked prompt even
+explains a Part 3 result (it instructs the model to over-rewrite). Alongside it are a
+no-content-moderation finding (BUG-2), the free-tier bypass above (BUG-3), and an
+input-validation gap (BUG-4). Beyond the user session, a passive, non-destructive
 [**security review**](part1/security-review.md) adds header-hygiene findings (a CSP that
 does not restrict scripts, framework disclosure) alongside the checks that *passed* - no
-secrets leaked across 56 client bundles, no source maps exposed, captcha enforced. Those
-header checks are codified as reusable probes in the qa-system.
+secrets leaked across 56 client bundles, no source maps exposed, captcha enforced - with
+those header checks codified as reusable probes in the qa-system.
+
+**Testing stayed responsibly scoped.** The prompt-injection, header, and secret-exposure
+checks are non-destructive and were run on my own account. **SQL and command injection
+were deliberately not attempted against the production app** - there is no authorization
+for active/destructive testing on a live service, and that work belongs in a controlled
+staging environment. Knowing where that line is is part of the job.
 
 **Part 3 - an LLM judge that actually catches things.** The report above shows 4/5 prompts
 passing. The one **FAIL** is the point: asked only to *add a call to action*, the feature
