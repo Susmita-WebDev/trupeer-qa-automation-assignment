@@ -26,7 +26,7 @@
 
 | Part | Folder | What it is |
 | :--- | :--- | :--- |
-| 1 | [`part1/`](part1/) | Exploratory testing session and a bug report with reproducible evidence |
+| 1 | [`part1/`](part1/) | Exploratory testing session, a bug report with reproducible evidence, and a passive security review |
 | 2 | [`part2/`](part2/) | Playwright E2E suite (Page Object Model), 11/11 passing against live Trupeer |
 | 3 | [`part3/`](part3/) | LLM-as-judge validation harness for "Modify Script with AI" |
 | ✦ | [`qa-system/`](qa-system/) | A regression-aware QA system that ties it together and remembers what changed |
@@ -122,7 +122,11 @@ Full setup, environment variables, and troubleshooting live in each part's READM
 </table>
 
 The full report, including a no-content-moderation finding, is in
-[`part1/bugs.md`](part1/bugs.md).
+[`part1/bugs.md`](part1/bugs.md). Beyond the user session, a passive, non-destructive
+[**security review**](part1/security-review.md) adds header-hygiene findings (a CSP that
+does not restrict scripts, framework disclosure) alongside the checks that *passed* - no
+secrets leaked across 56 client bundles, no source maps exposed, captcha enforced. Those
+header checks are codified as reusable probes in the qa-system.
 
 **Part 3 - an LLM judge that actually catches things.** The report above shows 4/5 prompts
 passing. The one **FAIL** is the point: asked only to *add a call to action*, the feature
