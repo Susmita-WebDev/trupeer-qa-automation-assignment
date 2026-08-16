@@ -107,10 +107,10 @@ Full setup, environment variables, and troubleshooting live in each part's READM
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="part1/evidence/manifest-404/">
-        <img src="part1/evidence/manifest-404/console-404.png" alt="Console showing a 404 for manifest.json" />
+      <a href="part1/evidence/disposable-email/">
+        <img src="part1/evidence/disposable-email/disposable-email-verification.png" alt="A disposable temp-mail inbox receiving Trupeer's verification email, bypassing the free-tier limit" />
       </a>
-      <sub><b>BUG-4</b> · <code>video/fonts/manifest.json</code> 404s on every editor load</sub>
+      <sub><b>BUG-3</b> · free-tier limit bypassed via disposable email (business impact)</sub>
     </td>
     <td width="50%" valign="top">
       <a href="part1/evidence/empty-prompt/">

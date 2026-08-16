@@ -19,9 +19,10 @@ that surfaced, with reproducible evidence.
 - **BUG-2** - a whitespace-only prompt is accepted and spends an AI call rewriting the script (input validation).
 - **BUG-3** - the free-tier limit is bypassable: email verification is satisfied by disposable inboxes (business-logic / anti-abuse).
 
-Plus a Low asset-hygiene bug, two verified developer-level observations (an
-app-level error on editor load, ungraceful degradation when a third-party script
-is blocked), and product suggestions.
+Plus verified developer-level and hygiene observations (an app-level error on
+editor load, ungraceful degradation when a third-party script is blocked, and
+asset-loading hygiene - all kept out of the bug count on purpose), and product
+suggestions.
 
 The security review adds header-hygiene findings (a CSP that does not restrict
 scripts, framework disclosure) and, importantly, a set of **passed** checks - no

@@ -33,11 +33,11 @@ headers and client-bundle exposure.
 | BUG-1 | "Modify Script with AI" applies no content moderation to prompts or output | AI feature / trust & safety | Medium |
 | BUG-2 | "Modify Script with AI" accepts a whitespace-only prompt and spends an AI call rewriting the script | AI feature / input validation | Medium |
 | BUG-3 | Free-tier limit is bypassable: email verification is satisfied by disposable inboxes | Sign-up / business-logic & anti-abuse | Medium |
-| BUG-4 | Font/asset pipeline is misconfigured: a `manifest.json` 404 on every editor load, plus unused font preloads | Editor / asset loading | Low |
 
-Two verified developer-level observations and a set of product suggestions follow
-the bugs. Header and client-exposure findings are in
-[`security-review.md`](security-review.md).
+The three numbered bugs are functional and business-logic issues, in line with the
+"functional over cosmetic" bar. Developer-level and hygiene observations (kept
+deliberately out of the bug count), product suggestions, and a passive
+[security review](security-review.md) follow.
 
 ---
 
@@ -114,35 +114,19 @@ The 3-video free-tier limit is the boundary the free/paid model depends on, and 
 
 ---
 
-## BUG-4 - Font/asset pipeline is misconfigured
-
-**Severity:** Low (best-practice / hygiene) &nbsp;|&nbsp; **Area:** Editor / asset loading &nbsp;|&nbsp; **Reproducibility:** Always
-
-Two related symptoms point at one cause - the editor's font/asset loading is not fully configured:
-
-1. **Broken request every load.** `GET https://app.trupeer.ai/content/<id>/video/fonts/manifest.json` returns **404 Not Found** on every editor load (confirmed in both the Console and Network tabs, and again via automated network capture).
-2. **Unused preloads.** The console logs repeated warnings that several `_next/static/media/*.woff2` fonts were *"preloaded using link preload but not used within a few seconds"* - fonts preloaded but not applied promptly.
-
-### Expected vs. actual
-- **Expected:** No requests for assets the server does not serve, and no fonts preloaded that are not used.
-- **Actual:** A guaranteed 404 per load and multiple wasted preloads. The individual fonts (geist, cousine) still render, so nothing visibly breaks.
-
-### Impact
-Low: no functional breakage, but it is a real per-load wasted round trip, avoidable bandwidth, and noise in Trupeer's own error monitoring. Grouped as one finding because both symptoms are the same misconfiguration.
-
-### Evidence
-[`evidence/manifest-404/`](evidence/manifest-404/): the Network 404 (`network-404.png`) and Console 404 (`console-404.png`). The 404 also appears in the live capture at [`evidence/dev-console/`](evidence/dev-console/).
-
----
-
-## Developer-level observations
+## Developer-level and hygiene observations
 
 Verified against Trupeer's own JavaScript bundles (a browser-extension's traffic
-and third-party analytics were checked and deliberately excluded).
+and third-party analytics were checked and deliberately excluded). These are kept
+out of the numbered bug list on purpose: they are real engineering findings, but
+they are hygiene or robustness notes, not the functional issues the report leads
+with.
 
-- **DEV-1 - App-level error on editor load, then a silent retry.** The console logs `ensureToken: attempt 0 failed  Error: Invariant: missing action dispatcher.` on editor load, with a stack trace into `app.trupeer.ai/_next/static/chunks/635-*.js`. This is a Next.js Server-Actions race - a token fetch fires before the action dispatcher is ready, fails, and retries. It recovers, so impact is low, but it is a real error on the happy path and worth tightening. **Evidence:** [`evidence/dev-console/`](evidence/dev-console/) (a filtered, live Playwright capture that also corroborates BUG-4).
+- **DEV-1 - App-level error on editor load, then a silent retry.** The console logs `ensureToken: attempt 0 failed  Error: Invariant: missing action dispatcher.` on editor load, with a stack trace into `app.trupeer.ai/_next/static/chunks/635-*.js`. This is a Next.js Server-Actions race - a token fetch fires before the action dispatcher is ready, fails, and retries. It recovers, so impact is low, but it is a real error on the happy path and worth tightening. **Evidence:** [`evidence/dev-console/`](evidence/dev-console/) (a filtered, live Playwright capture that also shows the DEV-3 asset-hygiene 404).
 
 - **DEV-2 - No graceful degradation when a third-party onboarding script is blocked.** Trupeer loads Userflow (`js.userflow.com`). When that request is blocked - which is common, since ad-blockers and privacy extensions block it - the failure surfaces as an **uncaught page exception** (`Could not load Userflow.js`) rather than being caught and ignored. The core app still works, but an uncaught error on load for a large slice of real users is avoidable. *(Confirmed in Trupeer's bundle: `chunks/4220-*.js`, `9689-*.js`, `layout-*.js`.)*
+
+- **DEV-3 - Font/asset pipeline hygiene.** The editor requests `.../video/fonts/manifest.json`, which returns **404** on every load, and the console warns that several `_next/static/media/*.woff2` fonts are *preloaded but not used within a few seconds*. The fonts (geist, cousine) still render, so nothing visibly breaks - a per-load wasted round trip and some avoidable bandwidth. This is a best-practice/hygiene note, which is precisely why it sits here and not in the numbered bug list. **Evidence:** [`evidence/manifest-404/`](evidence/manifest-404/) (Network and Console 404) and [`evidence/dev-console/`](evidence/dev-console/).
 
 - **OBS - Transcript rendered a spoken proper noun inconsistently.** I said "antester" (single t) while recording; the generated script rendered "anttester"/"Anttester" (double t) throughout. This may be down to pronunciation rather than a product fault, so it is logged as an observation. For a tool whose core output is an accurate transcript, proper-noun accuracy is a fair quality bar; the transcript is easily hand-corrected in the editor.
 
