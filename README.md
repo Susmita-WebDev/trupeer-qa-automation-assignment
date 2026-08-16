@@ -110,7 +110,7 @@ Full setup, environment variables, and troubleshooting live in each part's READM
       <a href="part1/evidence/manifest-404/">
         <img src="part1/evidence/manifest-404/console-404.png" alt="Console showing a 404 for manifest.json" />
       </a>
-      <sub><b>BUG-1</b> · <code>video/fonts/manifest.json</code> 404s on every editor load</sub>
+      <sub><b>BUG-4</b> · <code>video/fonts/manifest.json</code> 404s on every editor load</sub>
     </td>
     <td width="50%" valign="top">
       <a href="part1/evidence/empty-prompt/">

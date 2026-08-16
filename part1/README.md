@@ -15,9 +15,13 @@ that surfaced, with reproducible evidence.
 
 ## The headline findings
 
-- **BUG-1** - the editor requests `video/fonts/manifest.json`, which 404s on every load.
-- **BUG-2** - "Modify Script with AI" accepts a whitespace-only prompt and rewrites the script anyway.
-- **BUG-3** - "Modify Script with AI" applies no content moderation to its input or output.
+- **BUG-1** - "Modify Script with AI" applies no content moderation to prompts or output (trust & safety).
+- **BUG-2** - a whitespace-only prompt is accepted and spends an AI call rewriting the script (input validation).
+- **BUG-3** - the free-tier limit is bypassable: email verification is satisfied by disposable inboxes (business-logic / anti-abuse).
+
+Plus a Low asset-hygiene bug, two verified developer-level observations (an
+app-level error on editor load, ungraceful degradation when a third-party script
+is blocked), and product suggestions.
 
 The security review adds header-hygiene findings (a CSP that does not restrict
 scripts, framework disclosure) and, importantly, a set of **passed** checks - no

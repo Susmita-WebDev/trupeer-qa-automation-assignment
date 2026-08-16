@@ -1,330 +1,178 @@
 # Part 1 - Bug Report
 
-> **This file is a scaffold, not a submission.** Every bug below is a template to
-> be replaced with something you actually reproduced. Delete any entry you did
-> not observe yourself - an invented bug is worse than a short report.
+Exploratory testing of Trupeer.ai, focused on the sign-up flow, the video editor,
+and the "Modify Script with AI" feature. Findings are ordered by impact, every
+severity is committed (not hedged), and each functional bug carries reproducible
+evidence. A separate, passive [security review](security-review.md) covers response
+headers and client-bundle exposure.
 
 ## Environment
 
 | | |
 | :--- | :--- |
-| **Application** | Trupeer.ai - https://app.trupeer.ai |
-| **Build / date tested** | *(date of your session)* |
-| **Browser** | *(e.g. Chrome 131.0.6778.86, 64-bit)* |
-| **OS** | Windows 11 Home Single Language 24H2 |
-| **Screen** | *(e.g. 1920×1080, 100% scale)* |
-| **Account** | Free tier, *(N)* videos used |
-| **Network** | *(e.g. home broadband, ~100 Mbps)* |
+| **Application** | Trupeer.ai - `https://app.trupeer.ai` (Next.js on Vercel) |
+| **Date tested** | 2026-08-16 |
+| **Browser (manual)** | Chromium-based (Brave), current stable |
+| **Browser (automation)** | Playwright Chromium 151.0.7922.34 |
+| **OS** | Windows 11 Home Single Language, 24H2 |
+| **Account** | Free tier (3-video limit) |
 
 ## Severity definitions
 
 | Severity | Meaning |
 | :--- | :--- |
-| **Critical** | Data loss, or a core flow is completely blocked with no workaround. |
+| **Critical** | Data loss, or a core flow completely blocked with no workaround. |
 | **High** | A core flow is broken or badly degraded; workaround is painful or non-obvious. |
-| **Medium** | A feature misbehaves but the user can complete the task another way. |
-| **Low** | Cosmetic, or an edge case with minimal user impact. |
+| **Medium** | A feature misbehaves, or a control that should protect the business/user is ineffective. |
+| **Low** | Minor, best-practice, or an edge case with limited user impact. |
 
 ## Summary
 
 | # | Title | Area | Severity |
 | :--- | :--- | :--- | :--- |
-| 1 | Editor requests `video/fonts/manifest.json`, which returns 404 Not Found | Video editor / asset loading | Low |
-| 2 | "Modify Script with AI" accepts a whitespace-only prompt and rewrites the script | Editor / Modify Script with AI | Low / Medium |
-| 3 | "Modify Script with AI" has no content moderation (profanity / harmful content) | Editor / Modify Script with AI | Medium |
-| 4 | | | |
-| 5 | | | |
+| BUG-1 | "Modify Script with AI" applies no content moderation to prompts or output | AI feature / trust & safety | Medium |
+| BUG-2 | "Modify Script with AI" accepts a whitespace-only prompt and spends an AI call rewriting the script | AI feature / input validation | Medium |
+| BUG-3 | Free-tier limit is bypassable: email verification is satisfied by disposable inboxes | Sign-up / business-logic & anti-abuse | Medium |
+| BUG-4 | Font/asset pipeline is misconfigured: a `manifest.json` 404 on every editor load, plus unused font preloads | Editor / asset loading | Low |
+
+Two verified developer-level observations and a set of product suggestions follow
+the bugs. Header and client-exposure findings are in
+[`security-review.md`](security-review.md).
 
 ---
 
-## BUG-1 - Editor requests `video/fonts/manifest.json`, which returns 404 Not Found
+## BUG-1 - "Modify Script with AI" applies no content moderation
 
-**Severity:** Low
-**Area:** Video editor / asset loading
-**Reproducibility:** *(fill in: appears to be Always - it is a static request on the editor page)*
+**Severity:** Medium (trust & safety, brand) &nbsp;|&nbsp; **Area:** Editor / Modify Script with AI &nbsp;|&nbsp; **Reproducibility:** Always
 
 ### Steps to reproduce
+1. Sign in and open a video in the editor.
+2. Open **Modify Script with AI**.
+3. Instruct it to rewrite the script with disallowed content - profanity, and self-harm-themed wording (for example, renaming the product to a self-harm-themed name).
+4. Submit.
 
-1. Sign in at app.trupeer.ai and open a video in the editor
-   (`app.trupeer.ai/content/<id>/video/edit`).
-2. Open DevTools (F12) and go to the **Network** tab. Filter to All or Fetch/XHR.
-3. Observe the request to `.../content/<id>/video/fonts/manifest.json`.
-
-### Expected
-
-Every resource the application requests should either exist and return 200, or
-not be requested at all. A page should not fire a request for an asset the server
-does not serve.
-
-### Actual
-
-`GET https://app.trupeer.ai/content/<id>/video/fonts/manifest.json` returns
-**404 Not Found**. The request is highlighted as failed in the Network tab.
+### Expected vs. actual
+- **Expected:** An AI generation feature in a commercial product should moderate its input and output - refuse or flag clearly harmful categories (profanity, hate, self-harm) and warn the user, particularly since the result is baked into a shareable video carrying a "Made with Trupeer.ai" watermark.
+- **Actual:** The feature complied fully. It produced and displayed a script containing profanity and self-harm-themed content, with no filter, warning, or refusal, and wrote it straight into the editor and narration.
 
 ### Impact
-
-Low. The individual font files (geist, cousine) appear to load normally and the
-editor is usable, so this does not visibly break functionality. But it is a real
-broken request: a wasted round trip on every editor load, noise in the product's
-own error monitoring, and a symptom of a misconfigured font or asset path. If the
-manifest were actually required, font styling could silently fall back without a
-clear failure.
+This is a trust-and-safety and brand exposure on the product's flagship feature: harmful content, generated by Trupeer's own AI and stamped with Trupeer branding, can be published and shared. Self-harm is a category most model providers moderate by policy, so this also carries potential policy/compliance risk. A single demonstration is sufficient; there is no need to generate worse content to establish the gap.
 
 ### Evidence
+[`evidence/content-moderation/`](evidence/content-moderation/) (`rewrite-unmoderated.png`). The report describes the content clinically; the screenshot is the evidence of the gap.
 
-Screenshots in [`evidence/manifest-404/`](evidence/manifest-404/): the Network
-tab 404 (`network-404.png`) and the Console 404 (`console-404.png`).
-
-- Request URL: `https://app.trupeer.ai/content/<id>/video/fonts/manifest.json`
-- Request Method: GET
-- Status Code: 404 Not Found
-
-### Notes
-
-Check the **Console** tab for a matching error message, and confirm whether the
-fonts still render correctly despite the 404 (they appear to). Replace `<id>`
-with your actual content id when you attach the screenshot.
+### Suggested fix
+Run prompts and outputs through a moderation classifier (the model provider's moderation endpoint is enough), enable the provider's safety settings, and refuse with a clear message on a hit rather than silently inserting the content.
 
 ---
 
-## BUG-2 - "Modify Script with AI" accepts a whitespace-only prompt and rewrites the script
+## BUG-2 - Whitespace-only prompt is accepted and rewrites the script
 
-**Severity:** Low / Medium
-**Area:** Video editor / Modify Script with AI ("Rewrite with AI")
-**Reproducibility:** Always (observed)
+**Severity:** Medium (input validation on a paid feature) &nbsp;|&nbsp; **Area:** Editor / Modify Script with AI &nbsp;|&nbsp; **Reproducibility:** Always
 
 ### Steps to reproduce
-
-1. Sign in at app.trupeer.ai and open a video in the editor.
-2. Open the "Modify Script with AI" / "Rewrite with AI" box.
-3. Type only spaces into the prompt field (no actual instruction). The character
-   counter shows the spaces as valid input (for example "16/300").
+1. Sign in and open a video in the editor.
+2. Open **Modify Script with AI**.
+3. Type only spaces into the prompt (no instruction). The counter accepts them (e.g. `16/300`) and **Rewrite script** stays enabled.
 4. Click **Rewrite script**.
 
-### Expected
-
-A prompt that contains only whitespace has no instruction in it, so it should be
-treated as empty and rejected: the input should be trimmed, and with no real text
-the **Rewrite script** button should be disabled, or a validation message should
-ask for an instruction. Standard behaviour is to not send an empty request to the
-AI.
-
-### Actual
-
-The whitespace-only prompt is accepted. The character counter counts the spaces
-as valid characters (16/300) and the **Rewrite script** button stays enabled.
-Clicking it sends the request and the AI rewrites the entire script anyway, then
-shows the "Keep changes / Discard changes" bar. The app does not trim whitespace
-or validate that the prompt contains an actual instruction.
+### Expected vs. actual
+- **Expected:** A whitespace-only prompt contains no instruction. The input should be trimmed and treated as empty - the button disabled, or a validation message shown. An empty request should not reach the AI.
+- **Actual:** The prompt is accepted with no trimming and no validation. The request is sent, the AI rewrites the whole script from a meaningless instruction, and the Keep changes / Discard changes bar appears as if a normal prompt had been given.
 
 ### Impact
-
-Low / Medium. From the user's side, no validation message or warning is shown at
-all: the app silently accepts the blank instruction and jumps straight to the
-Keep changes / Discard changes bar, as if a normal prompt had been given. The
-user gets an unpredictable rewrite with no instruction given, which is confusing,
-and it spends a real (paid) AI call on a meaningless request. It is not data
-loss, since the change can be reverted with Discard, but it is a genuine
-input-validation gap on the product's core AI feature. This is exactly the
-empty-prompt negative case the assignment highlights.
+A genuine input-validation gap on the core AI feature. The user gets an unpredictable rewrite with no instruction and no feedback, and every submission spends a real (paid) AI call on a meaningless request. Not data loss (Discard reverts it), but a clear correctness and cost issue. This is the empty-prompt negative case the assignment calls out, and it is asserted directly in the Part 2 suite ([`part2/tests/05-modify-script-negative.spec.js`](../part2/tests/05-modify-script-negative.spec.js)).
 
 ### Evidence
+[`evidence/empty-prompt/`](evidence/empty-prompt/): `before.png` (whitespace typed, counter `16/300`, button enabled) and `after.png` (script rewritten, Keep/Discard bar shown).
 
-Before and after screenshots in [`evidence/empty-prompt/`](evidence/empty-prompt/):
-- `before.png` - the Rewrite with AI box with only whitespace typed, counter at
-  16/300, Rewrite script button enabled.
-- `after.png` - the script fully rewritten, with the Keep changes / Discard
-  changes bar shown.
-
-### Notes
-
-The Part 2 negative test should assert this exact case: a whitespace-only prompt
-should be rejected, not processed. See `part2/tests/05-modify-script-negative.spec.js`.
+### Suggested fix
+Trim the prompt client-side; disable submit when the trimmed length is zero; reject empty prompts server-side as defence in depth.
 
 ---
 
-## BUG-3 - "Modify Script with AI" has no content moderation (generates profanity and harmful content on request)
+## BUG-3 - Free-tier limit is bypassable via disposable email
 
-**Severity:** Medium
-**Area:** Video editor / Modify Script with AI
-**Reproducibility:** Always (observed)
+**Severity:** Medium (business-logic / anti-abuse) &nbsp;|&nbsp; **Area:** Sign-up &nbsp;|&nbsp; **Reproducibility:** Confirmed, repeated
 
 ### Steps to reproduce
+1. Open a disposable email service (temp-mail.org, mailinator.com, 10minutemail.com) and copy the temporary address.
+2. Sign up on app.trupeer.ai with that address.
+3. Open the disposable inbox, click Trupeer's verification link (it arrives without issue), and the account activates.
+4. Confirm full access (dashboard, recording).
+5. Repeat with a second disposable address for another fresh 3-video allowance.
 
-1. Sign in at app.trupeer.ai and open a video in the editor.
-2. Open "Modify Script with AI" / "Rewrite with AI".
-3. Ask it to rewrite the script inserting inappropriate content: profanity, and
-   harmful / self-harm-themed wording (for example renaming the product to a
-   self-harm-themed name).
-4. Submit and observe the rewritten script.
-
-### Expected
-
-An AI content-generation feature in a commercial product should apply content
-moderation. It should refuse or filter clearly harmful output such as profanity,
-hate speech, and self-harm content, and warn the user rather than producing it,
-especially because the generated video carries a "Made with Trupeer.ai" watermark
-and can be published and shared.
-
-### Actual
-
-The feature complied with the requests. It generated and displayed a script
-containing profanity and self-harm-themed content, with no filtering, no warning,
-and no refusal. The unmoderated text was rendered directly into the editor and
-narration.
+### Expected vs. actual
+- **Expected:** Email verification exists to raise the cost of creating throwaway accounts, so the free-tier allowance is not trivially repeatable.
+- **Actual:** Verification is fully satisfied by disposable inboxes. I created and used multiple accounts this way, each receiving its own fresh 3-video allowance - effectively unlimited free usage at zero cost.
 
 ### Impact
-
-Medium. The lack of moderation is a brand, safety, and trust risk: harmful
-content generated by Trupeer's own AI is embedded in shareable videos that carry
-Trupeer branding. Self-harm content in particular is a sensitive category that
-most AI providers filter by policy. This exposes the product to reputational and
-potential policy or compliance issues.
+The 3-video free-tier limit is the boundary the free/paid model depends on, and it is bypassable with a low-effort, well-known vector. This is a business-logic weakness, not a functional break - sign-up works as designed, but the anti-abuse control around it is ineffective. See the layered-mitigation suggestion below; the honest goal is to raise the effort to abuse, not to make it impossible.
 
 ### Evidence
-
-Screenshot in [`evidence/content-moderation/`](evidence/content-moderation/)
-(`rewrite-unmoderated.png`). *(The screenshot contains the flagged content by
-nature; it is the evidence of the gap. Keep it with the private submission. The
-report itself deliberately describes the content clinically rather than
-reproducing it.)*
-
-### Notes
-
-One demonstration is sufficient evidence of the moderation gap; there is no need
-to generate further or more severe harmful content to prove it. A reasonable fix
-is to run AI outputs (and prompts) through a content-moderation filter and refuse
-or flag disallowed categories.
+[`evidence/disposable-email/`](evidence/disposable-email/): the disposable inbox receiving Trupeer's verification and welcome emails.
 
 ---
 
-## BUG-4 - *(title)*
+## BUG-4 - Font/asset pipeline is misconfigured
 
-**Severity:**
-**Area:**
-**Reproducibility:**
+**Severity:** Low (best-practice / hygiene) &nbsp;|&nbsp; **Area:** Editor / asset loading &nbsp;|&nbsp; **Reproducibility:** Always
 
-### Steps to reproduce
+Two related symptoms point at one cause - the editor's font/asset loading is not fully configured:
 
-1.
+1. **Broken request every load.** `GET https://app.trupeer.ai/content/<id>/video/fonts/manifest.json` returns **404 Not Found** on every editor load (confirmed in both the Console and Network tabs, and again via automated network capture).
+2. **Unused preloads.** The console logs repeated warnings that several `_next/static/media/*.woff2` fonts were *"preloaded using link preload but not used within a few seconds"* - fonts preloaded but not applied promptly.
 
-### Expected
-
-### Actual
+### Expected vs. actual
+- **Expected:** No requests for assets the server does not serve, and no fonts preloaded that are not used.
+- **Actual:** A guaranteed 404 per load and multiple wasted preloads. The individual fonts (geist, cousine) still render, so nothing visibly breaks.
 
 ### Impact
+Low: no functional breakage, but it is a real per-load wasted round trip, avoidable bandwidth, and noise in Trupeer's own error monitoring. Grouped as one finding because both symptoms are the same misconfiguration.
 
 ### Evidence
+[`evidence/manifest-404/`](evidence/manifest-404/): the Network 404 (`network-404.png`) and Console 404 (`console-404.png`).
 
 ---
 
-## Observations that are not bugs
+## Developer-level observations
 
-Minor things noticed while using the product, kept separate from the bug list on
-purpose. These are not counted as defects.
+Verified against Trupeer's own JavaScript bundles (a browser-extension's traffic
+and third-party analytics were checked and deliberately excluded).
 
-- **OBS-1: Transcript rendered a spoken proper noun inconsistently.** While
-  recording the demo video I said the name "antester" (single t). The generated
-  script rendered it as "anttester" / "Anttester" (double t) throughout. This may
-  be down to my pronunciation rather than a fault in the product, so it is logged
-  as an observation, not a bug. Still worth noting: for a tool whose core output
-  is an accurate transcript, proper-noun accuracy is a reasonable quality bar.
-  *Impact:* low. The transcript is easily hand-corrected in the editor.
+- **DEV-1 - App-level error on editor load, then a silent retry.** The console logs `ensureToken: attempt 0 failed  Error: Invariant: missing action dispatcher.` on editor load. This is a Next.js Server-Actions race - a token fetch fires before the action dispatcher is ready, fails, and retries. It recovers, so impact is low, but it is a real error on the happy path and worth tightening. *(Confirmed in Trupeer's bundle: `chunks/350-*.js`.)*
 
-- **OBS-2 (security / anti-abuse): Email verification is defeated by disposable /
-  temporary email addresses.** Sign-up does send a verification email, but
-  disposable temp-mail services receive that email fine, so verification does not
-  actually prevent abuse. **Confirmed:** I verified and used multiple accounts
-  this way, each getting its own fresh 3-video allowance, for effectively
-  unlimited free videos. Why it matters: the free tier's 3-video limit is the
-  boundary the free/paid model depends on, and it can be bypassed with zero cost.
+- **DEV-2 - No graceful degradation when a third-party onboarding script is blocked.** Trupeer loads Userflow (`js.userflow.com`). When that request is blocked - which is common, since ad-blockers and privacy extensions block it - the failure surfaces as an **uncaught page exception** (`Could not load Userflow.js`) rather than being caught and ignored. The core app still works, but an uncaught error on load for a large slice of real users is avoidable. *(Confirmed in Trupeer's bundle: `chunks/4220-*.js`, `9689-*.js`, `layout-*.js`.)*
 
-  **How to reproduce (confirmed):**
-  1. In another tab, open a disposable email service (for example temp-mail.org,
-     mailinator.com, or 10minutemail.com) and copy the temporary address it gives.
-  2. On app.trupeer.ai, sign up with that temporary address.
-  3. Trupeer sends a verification email. Open the disposable inbox, click the
-     verification link (the disposable service receives it without issue), and the
-     account becomes active.
-  4. Confirm you can fully use the account (reach the dashboard, record videos).
-  5. Repeat with a second address (or a second Google account, an incognito
-     window, or a different browser) to get another fresh 3-video allowance. These
-     are the same low-effort vectors a real abuser would try; a single second
-     account is enough proof, no virtual machine needed.
+- **OBS - Transcript rendered a spoken proper noun inconsistently.** I said "antester" (single t) while recording; the generated script rendered "anttester"/"Anttester" (double t) throughout. This may be down to pronunciation rather than a product fault, so it is logged as an observation. For a tool whose core output is an accurate transcript, proper-noun accuracy is a fair quality bar; the transcript is easily hand-corrected in the editor.
 
-  **Severity (confirmed): Low / Medium.** Verification exists but is satisfied by
-  disposable inboxes, so it does not stop the abuse. This is a confirmed,
-  reproducible free-tier bypass. It does not break functionality, so it is
-  reported as a security / business-logic finding rather than a functional bug:
-  sign-up itself works as designed, but the anti-abuse control around it is
-  ineffective.
+## Related: passive security review
 
-- **OBS-3 (performance): Fonts are preloaded but not used, producing repeated
-  console warnings.** On the editor page the console logs several warnings of the
-  form: "The resource `<...>.woff2` was preloaded using link preload but not used
-  within a few seconds from the window's load event. Please make sure it has an
-  appropriate `as` value and it is preloaded intentionally." Multiple
-  `_next/static/media/*.woff2` fonts are preloaded but not used promptly. Why it
-  matters: preloading assets that are not used wastes bandwidth and can delay more
-  important resources; it is a font-optimization (Next.js) misconfiguration.
-  *Impact:* low, performance/best-practice. This is a warning, not an error, and
-  does not break functionality. It is in the same area as BUG-1 (the font
-  `manifest.json` 404): together they suggest the app's font loading is not fully
-  configured.
-
-*(Add other genuine observations here as you find them. Keep them honest and
-labelled as observations, not padded into the bug count.)*
-
----
+Beyond this functional report, [`security-review.md`](security-review.md) records a
+read-only security pass: a Content-Security-Policy that does not restrict scripts
+(so gives no XSS mitigation), framework disclosure via `X-Powered-By`, a deprecated
+`X-XSS-Protection` header, and a broad `microphone=*` permission - alongside the
+checks that **passed** (no server secrets across 56 client bundles, no source maps
+exposed, captcha enforced). Those header checks are codified as reusable probes in
+[`qa-system/src/checks/security.js`](../qa-system/src/checks/security.js).
 
 ## Suggestions
 
-Product improvement ideas from using Trupeer as a real user. These are not bugs;
-they are the kind of thing a thoughtful tester surfaces alongside the report.
+Product ideas surfaced while testing - not defects, but the kind of thing a
+thoughtful tester raises alongside the report.
 
-- **After export, return the user to the Library, not the main page.** Exporting
-  a video from the Library shows a brief "exporting" indicator for about a second
-  and then redirects to the main page, away from the Library where the video and
-  its export live. Returning to (or staying in) the Library would keep the user
-  oriented and let them see the exported result immediately, instead of having to
-  navigate back to find it. *(Worth verifying first: confirm the exported file
-  actually appears in the Library. If it does not, this stops being a suggestion
-  and becomes a real bug, because the export would be failing silently.)*
-- **Add a way to cancel an in-progress export.** Once an export is triggered
-  there is currently no option to stop it. A cancel control would let a user who
-  exported the wrong video, or changed a setting, back out without waiting for it
-  to finish.
-- **Harden the free tier against multi-account abuse (layered).** See OBS-2.
-  Blocking disposable email domains is a sensible first step, but on its own it
-  will not stop a determined user: the same free allowance can be claimed again
-  with a second Google account, an incognito window, a different browser, or a
-  virtual machine. Meaningfully closing the gap needs layered controls, for
-  example a per-IP or per-device account-creation rate limit, device
-  fingerprinting, or requiring a verified phone number or payment method before
-  higher usage. Each carries a tradeoff worth weighing: device fingerprinting
-  touches user privacy and can false-positive on shared or corporate machines, so
-  the right level depends on how much this abuse actually costs Trupeer. The
-  honest framing is "raise the effort required to abuse the free tier," not "make
-  it impossible."
-
-- **Coordinate AI voice gender with the AI avatar.** The AI voice selection and
-  the AI avatar selection are independent, so a user can end up with a male voice
-  on a female avatar (or the reverse), which looks wrong in the generated video.
-  When a voice gender is chosen, the avatar could default to a matching gender,
-  and vice versa. Keep it a smart default, not a hard lock: some users may
-  deliberately want a mismatched pairing, so the coordinated default should still
-  be overridable. This is a defaulting / UX-polish improvement, not a defect,
-  since both controls work correctly on their own.
-
-*(Add other real ideas here as you find them. One or two specific, well-argued
-suggestions are worth more than a long generic list.)*
-
----
+- **Harden the free tier against multi-account abuse (layered).** See BUG-3. Blocking disposable-email domains is a sensible first step but insufficient on its own: the same allowance can be re-claimed with a second Google account, an incognito window, or a different browser. Meaningfully closing the gap needs layered controls - a per-IP/per-device account-creation rate limit, device fingerprinting, or a verified phone/payment step before higher usage. Each has a tradeoff worth weighing (fingerprinting touches privacy and false-positives on shared machines), so the right level depends on how much the abuse actually costs. Frame it as raising the effort to abuse, not eliminating it.
+- **After export, return the user to the Library, not the main page.** Exporting from the Library shows a brief indicator and then redirects to the main page, away from where the video lives. Staying in (or returning to) the Library keeps the user oriented and shows the result immediately. *(Worth confirming the exported file does appear in the Library; if it does not, this is a silent-failure bug, not a suggestion.)*
+- **Allow cancelling an in-progress export.** There is currently no way to stop an export once triggered; a cancel control would let a user who exported the wrong video back out.
+- **Coordinate AI voice gender with the AI avatar.** Voice and avatar selection are independent, so a male voice can end up on a female avatar. Defaulting the avatar to match the chosen voice gender (and vice versa) would avoid the mismatch - kept as a smart, overridable default, since some users may want a deliberate pairing.
 
 ## Blockers encountered during automation
 
-*(The assignment explicitly asks for this. If "Modify Script with AI" rate-limited
-you, timed out, or errored while you were building Part 2 or 3, record it here
-with the same rigour as a bug, and note how the tests were adapted - e.g. the
-extended `AI_RESPONSE_TIMEOUT_MS`, or the settle-detection in
-`EditorPage.waitForScriptToChange`.)*
+The assignment asks for these. In practice the "Modify Script with AI" feature was
+**reliable** during testing - no rate limits or hard errors were hit across the
+Part 2 and Part 3 runs. The real challenges were timing, and the tests were adapted
+accordingly rather than working around outright failures:
+
+- **Variable AI latency.** Rewrites took a few seconds but with spread. The suite uses a generous, configurable `AI_RESPONSE_TIMEOUT_MS` and a settle-detection loop (`EditorPage.waitForScriptToChange` polls until the script text stops changing) instead of a fixed sleep, so a slow response does not flake the test.
+- **Editor hydration race.** The Slate script panel populates asynchronously after the page loads, so `waitForLoaded` polls until the script has real content before any assertion runs.
+- **Headless sign-in is blocked** by Trupeer's bot protection, so authentication is captured once in a headed browser and the storage state is reused across runs (see [`part2/README.md`](../part2/README.md#authentication)).
