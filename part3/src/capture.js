@@ -110,7 +110,7 @@ export class TrupeerSession {
       throw new Error(
         `No valid Trupeer session and AUTH_MODE is "${env.authMode}". Run ` +
           '`npm run auth` in part2/ first, or set AUTH_MODE=password with ' +
-          'TRUPEER_EMAIL / TRUPEER_PASSWORD in part2/.env.',
+          'TRUPEER_EMAIL / TRUPEER_PASSWORD in the repo-root .env.',
       );
     }
 

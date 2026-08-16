@@ -63,13 +63,13 @@ security (HTTP)  ───┘                                    │
 ## Setup
 
 ```bash
-# Part 2 first: it owns the Trupeer credentials and the saved browser session.
-cd ../part2 && npm install && npx playwright install chromium
-cp .env.example .env && npm run auth
+# Config is ONE .env at the repo root, shared with Part 2 and Part 3:
+cd .. && cp .env.example .env   # add the Trupeer login and the model keys, then:
 
-cd ../qa-system
-npm install
-cp .env.example .env      # add ANTHROPIC_API_KEY, and GEMINI_API_KEY when you have it
+# Part 2 owns the saved browser session a full run reuses:
+cd part2 && npm install && npx playwright install chromium && npm run auth
+
+cd ../qa-system && npm install
 ```
 
 ## Running
@@ -97,7 +97,7 @@ example is at [`sample/sample-report.html`](sample/sample-report.html).
 
 ## Environment variables
 
-Trupeer credentials come from `part2/.env`. `qa-system/.env` adds:
+Everything comes from the single repo-root `.env` (shared with Parts 2 and 3):
 
 | Variable | Required | Purpose |
 | :--- | :--- | :--- |

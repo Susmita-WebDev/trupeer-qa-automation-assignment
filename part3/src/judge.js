@@ -54,7 +54,7 @@ export async function judge(input) {
   if (providers.length === 0) {
     throw new Error(
       'No judge API key is set. Add a free GEMINI_API_KEY ' +
-        '(https://aistudio.google.com/app/apikey) or an ANTHROPIC_API_KEY to part3/.env.',
+        '(https://aistudio.google.com/app/apikey) or an ANTHROPIC_API_KEY to the repo-root .env.',
     );
   }
 

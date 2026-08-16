@@ -5,13 +5,10 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 export const SYSTEM_ROOT = path.resolve(here, '..');
 export const REPO_ROOT = path.resolve(SYSTEM_ROOT, '..');
 
-// Part 2 carries the Trupeer credentials; qa-system/.env adds the model keys.
+// One shared config for the whole repo: the .env at the repo root configures
+// Part 2, Part 3, and this system.
 dotenv.config({
-  path: path.resolve(REPO_ROOT, 'part2', '.env'),
-});
-dotenv.config({
-  path: path.join(SYSTEM_ROOT, '.env'),
-  override: true,
+  path: path.resolve(REPO_ROOT, '.env'),
 });
 function optional(name, fallback) {
   return process.env[name]?.trim() || fallback;

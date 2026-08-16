@@ -3,15 +3,18 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const PROJECT_ROOT = path.resolve(here, '..', '..');
+// One shared config for the whole repo: the .env at the repo root (one level
+// above part2/) configures both Part 2 and Part 3.
+export const REPO_ROOT = path.resolve(PROJECT_ROOT, '..');
 dotenv.config({
-  path: path.join(PROJECT_ROOT, '.env'),
+  path: path.join(REPO_ROOT, '.env'),
 });
 function required(name) {
   const value = process.env[name];
   if (!value) {
     throw new Error(
       `Missing required environment variable ${name}. ` +
-        `Copy part2/.env.example to part2/.env and fill it in.`,
+        `Copy .env.example to .env in the repo root and fill it in.`,
     );
   }
   return value;

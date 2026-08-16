@@ -4,16 +4,12 @@ import dotenv from 'dotenv';
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const PART3_ROOT = path.resolve(here, '..');
 
-// Precedence: the real environment wins, then part3/.env, then part2/.env.
-// dotenv never overwrites a key that is already set, so loading part3 before
-// part2 (and neither with override) gives exactly that order. This matters for
-// CLI flags: `validate:headed` exports HEADED=1, and that must beat the HEADED=0
-// sitting in part3/.env - otherwise the flag would silently do nothing.
+// One shared config for the whole repo: the .env at the repo root (one level
+// above part3/) configures both Part 2 and Part 3. dotenv never overwrites a key
+// already set in the real environment, so a CLI flag like `validate:headed`
+// (HEADED=1) still beats the HEADED=0 in .env.
 dotenv.config({
-  path: path.join(PART3_ROOT, '.env'),
-});
-dotenv.config({
-  path: path.resolve(PART3_ROOT, '..', 'part2', '.env'),
+  path: path.resolve(PART3_ROOT, '..', '.env'),
 });
 function optional(name, fallback) {
   return process.env[name]?.trim() || fallback;
@@ -44,7 +40,7 @@ export const config = {
     const key = process.env.ANTHROPIC_API_KEY?.trim();
     if (!key) {
       throw new Error(
-        'ANTHROPIC_API_KEY is not set. Add it to part3/.env, or use a free ' +
+        'ANTHROPIC_API_KEY is not set. Add it to the repo-root .env, or use a free ' +
           'GEMINI_API_KEY instead (the judge auto-detects it).',
       );
     }
@@ -55,7 +51,7 @@ export const config = {
     if (!key) {
       throw new Error(
         'GEMINI_API_KEY is not set. Get a free key at ' +
-          'https://aistudio.google.com/app/apikey and add it to part3/.env.',
+          'https://aistudio.google.com/app/apikey and add it to the repo-root .env.',
       );
     }
     return key;

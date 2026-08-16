@@ -100,8 +100,8 @@ main().catch((error) => {
   console.error('\n[validate] Fatal:', error instanceof Error ? error.message : error);
   console.error(
     '\nCommon causes:\n' +
-      '  - No saved session: run `npm run auth` in part2/, or set password creds in part2/.env\n' +
-      '  - No judge key: set a free GEMINI_API_KEY (or ANTHROPIC_API_KEY) in part3/.env\n' +
+      '  - No saved session: run `npm run auth` in part2/, or set password creds in the root .env\n' +
+      '  - No judge key: set a free GEMINI_API_KEY (or ANTHROPIC_API_KEY) in the root .env\n' +
       '  - Selectors drifted: run `npm run discover` in part2/\n' +
       `  - Judge model unavailable: check the model for ${config.primaryProvider} (currently ${config.activeModel})`,
   );

@@ -12,25 +12,26 @@ asked.
 ## Setup
 
 ```bash
+# Config is ONE .env at the repo root (shared with Part 2 and the qa-system):
+cd .. && cp .env.example .env && cd part3   # set the Trupeer login + a GEMINI_API_KEY
+
 # Part 2 first - Part 3 reuses its page objects and its saved session.
 cd ../part2 && npm install && npx playwright install chromium
-cp .env.example .env      # set the Trupeer credentials here
 
 cd ../part3
 npm install
-cp .env.example .env      # add a GEMINI_API_KEY (free) or an ANTHROPIC_API_KEY
 npm run validate
 ```
 
 Part 3 signs into Trupeer itself if there is no saved session, so you do not have
-to run Part 2 first - the two just share the same credentials in `part2/.env`.
+to run Part 2 first - both read the same repo-root `.env`.
 
 ## Environment variables
 
-Trupeer credentials come from `part2/.env` (Part 3 loads it automatically).
-`part3/.env` adds only the judge's configuration. The judge needs **at least one**
-API key; it tries providers in order and uses the first that works, so if one
-provider is unavailable it falls back to the other.
+Everything comes from the single repo-root `.env`. Part 3 needs the Trupeer login
+(shared with Part 2) plus **at least one** judge API key; it tries providers in
+order and uses the first that works, so if one is unavailable it falls back to the
+other.
 
 | Variable | Required | Purpose |
 | :--- | :--- | :--- |

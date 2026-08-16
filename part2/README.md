@@ -6,15 +6,17 @@ with AI", and one further editor feature, plus negative cases.
 ## Setup (clone and run)
 
 ```bash
+# Config lives in ONE .env at the repo root (shared with Part 3 and the qa-system).
+cd .. && cp .env.example .env && cd part2   # then fill in credentials (see below)
+
 npm install
 npx playwright install chromium
-cp .env.example .env      # then fill in credentials (see below)
 npx playwright test       # one command: signs in, then runs everything
 ```
 
 That single `npx playwright test` works because a **setup project** signs in
-first, using the credentials in `.env`, and every test reuses that session. No
-separate step, no secrets in the code. Set these two in `.env`:
+first, using the credentials from the repo-root `.env`, and every test reuses that
+session. No separate step, no secrets in the code. Set these two in the root `.env`:
 
 ```
 AUTH_MODE=password

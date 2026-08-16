@@ -77,18 +77,19 @@ so there is one source of truth for every selector.
 ## Quick start
 
 ```bash
+# One shared config for the whole repo - create it once at the repo root:
+cp .env.example .env      # Trupeer login + a free GEMINI_API_KEY (both parts read this)
+
 # Part 2 - E2E suite
 cd part2
 npm install
 npx playwright install chromium
-cp .env.example .env      # fill in Trupeer credentials
 npm run auth              # one-time: capture a logged-in session
 npx playwright test       # report opens in the browser automatically
 
 # Part 3 - AI-augmented validation
 cd ../part3
 npm install
-cp .env.example .env      # add a free GEMINI_API_KEY (or an ANTHROPIC_API_KEY)
 npm run validate          # grades 5 prompts, opens the HTML report
 ```
 
@@ -166,8 +167,9 @@ persistent failure surfaces as an orange badge on the tab:
 
 ## Design notes
 
-**Credentials are never committed.** Everything sensitive is read from `.env` files, which
-are gitignored; `.env.example` documents each variable.
+**Credentials are never committed.** Everything sensitive is read from a single
+`.env` at the repo root (gitignored) that configures Part 2, Part 3, and the
+qa-system; `.env.example` documents each variable.
 
 **Authentication is captured once, reused everywhere.** Trupeer's sign-in is slow and
 brittle to drive on every test, so both parts log in once, persist the browser storage
