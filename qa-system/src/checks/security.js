@@ -54,6 +54,13 @@ function checkCsp(headers) {
   }
   // Enforced CSP present; flag the common weakening directives.
   const weaknesses = [];
+  // The important one: a CSP with neither script-src nor default-src does not
+  // restrict where scripts load from, so it gives no XSS mitigation at all -
+  // even though a header is technically "present". (e.g. `frame-ancestors 'self'`
+  // alone only stops framing.)
+  if (!/\bscript-src\b/.test(csp) && !/\bdefault-src\b/.test(csp)) {
+    weaknesses.push('no script-src or default-src, so script sources are unrestricted (no XSS mitigation)');
+  }
   if (/'unsafe-inline'/.test(csp)) weaknesses.push("script/style allows 'unsafe-inline'");
   if (/'unsafe-eval'/.test(csp)) weaknesses.push("allows 'unsafe-eval'");
   if (/\bdefault-src\s+\*/.test(csp)) weaknesses.push('default-src is wildcard');
@@ -95,6 +102,32 @@ function checkFrameProtection(headers) {
     ok
       ? `Protected via ${xfo ? `X-Frame-Options: ${xfo}` : 'CSP frame-ancestors'}`
       : 'Neither X-Frame-Options nor CSP frame-ancestors is present',
+  );
+}
+function checkPoweredBy(headers) {
+  const value = headers.get('x-powered-by');
+  return result(
+    'security.headers.powered-by',
+    'Server does not disclose its framework via X-Powered-By',
+    !value,
+    'low',
+    'No X-Powered-By header (framework and version not advertised)',
+    value ? `X-Powered-By: ${value} (discloses the stack; remove it)` : 'X-Powered-By is absent',
+  );
+}
+function checkLegacyXss(headers) {
+  const value = headers.get('x-xss-protection');
+  // X-XSS-Protection is deprecated: modern browsers ignore it, and value 1 can
+  // introduce issues in some legacy engines. The guidance is 0 (or absent) plus
+  // a real CSP. Flag as info, not a hard failure.
+  const ok = !value || value.trim().startsWith('0');
+  return result(
+    'security.headers.xss-legacy',
+    'Deprecated X-XSS-Protection is not left enabled',
+    ok,
+    'info',
+    'X-XSS-Protection absent or set to 0 (rely on CSP instead)',
+    value ? `X-XSS-Protection: ${value} (deprecated; prefer 0 plus a CSP)` : 'X-XSS-Protection is absent',
   );
 }
 function checkCookies(headers) {
@@ -264,6 +297,8 @@ export async function runSecurityChecks(target) {
     ),
   );
   results.push(checkFrameProtection(headers));
+  results.push(checkPoweredBy(headers));
+  results.push(checkLegacyXss(headers));
   results.push(checkCookies(headers));
   results.push(await scanClientAssets(target));
   return results;
