@@ -95,6 +95,19 @@
   .find p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; max-width: 64ch; }
   .find code { font-family: var(--mono); font-size: 0.86em; color: var(--ink-dim); background: var(--bg-2); padding: 1px 5px; border-radius: 4px; }
 
+  /* Glowing animated scroll cue */
+  .scroll-cue { display: inline-flex; align-items: center; gap: 10px; margin-top: 32px; font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--accent); padding: 11px 18px; border-radius: 999px; border: 1px solid var(--accent-dim); background: var(--accent-bg); animation: cueGlow 2.2s ease-in-out infinite; }
+  .scroll-cue:hover { transform: translateY(-1px); }
+  .scroll-cue .bob { display: inline-block; animation: bob 1.3s ease-in-out infinite; }
+  @keyframes cueGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,189,0); } 50% { box-shadow: 0 0 24px 2px rgba(52,211,189,0.4); } }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+  /* Glowing README callout */
+  .readme-cta { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 22px 26px; border-radius: 14px; background: var(--surface); border: 1px solid var(--accent-dim); animation: ctaGlow 2.8s ease-in-out infinite; }
+  .readme-cta .txt { color: var(--ink-dim); font-size: 15px; max-width: 62ch; }
+  .readme-cta .txt b { color: var(--ink); }
+  @keyframes ctaGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,189,0); } 50% { box-shadow: 0 0 28px 1px rgba(52,211,189,0.3); } }
+
   footer { padding: 38px 0 60px; color: var(--faint); font-size: 13px; }
   footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
   footer .mono { font-family: var(--mono); }
@@ -125,9 +138,10 @@
       <span class="stat"><b>LLM-as-judge</b> validation</span>
       <span class="stat"><b>regression-aware</b> reports</span>
     </div>
+    <a class="scroll-cue" href="#start">Setup, credentials &amp; how to run every part <span class="bob">&darr;</span></a>
   </header>
 
-  <section>
+  <section id="start">
     <div class="sec-head"><span class="n">&#9656;</span><h2>Start here &mdash; three steps</h2></div>
     <div class="steps">
       <div class="step">
@@ -149,16 +163,27 @@
       <div class="step">
         <div class="num">3</div>
         <div>
-          <h3>Run it</h3>
-          <p>Clone and run. Both suites open their report in the browser automatically when they finish.</p>
+          <h3>Run it &mdash; every part</h3>
+          <p>Clone once, set one <code style="font-family:var(--mono);color:var(--ink-dim)">.env</code>, then run each part. The E2E suite and the AI validation both open their report in the browser automatically. (Part 1 is the bug report and evidence &mdash; read, not run.)</p>
           <div class="terminal">
             <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="ttl">clone-and-run</span></div>
-<pre><span class="p">$</span> git clone https://github.com/Susmita-WebDev/trupeer-qa-automation-assignment
+<pre><span class="c"># 1. Clone and configure (one .env at the root, for all parts)</span>
+<span class="p">$</span> git clone https://github.com/Susmita-WebDev/trupeer-qa-automation-assignment
 <span class="p">$</span> cd trupeer-qa-automation-assignment
-<span class="p">$</span> cp .env.example .env        <span class="c"># paste the login + Gemini key (one file, all parts)</span>
+<span class="p">$</span> cp .env.example .env        <span class="c"># paste the Trupeer login + Gemini key</span>
+
+<span class="c"># 2. Part 2 - Playwright E2E suite</span>
 <span class="p">$</span> cd part2 &amp;&amp; npm install &amp;&amp; npx playwright install chromium
-<span class="p">$</span> npm run auth &amp;&amp; npx playwright test
-<span class="p">$</span> cd ../part3 &amp;&amp; npm install &amp;&amp; npm run validate</pre>
+<span class="p">$</span> npm run auth              <span class="c"># one-time: sign in, session is reused</span>
+<span class="p">$</span> npx playwright test        <span class="c"># report opens automatically</span>
+
+<span class="c"># 3. Part 3 - LLM-as-judge validation</span>
+<span class="p">$</span> cd ../part3 &amp;&amp; npm install
+<span class="p">$</span> npm run validate           <span class="c"># grades 5 prompts, opens the report</span>
+
+<span class="c"># 4. Bonus - qa-system (the demo needs no keys)</span>
+<span class="p">$</span> cd ../qa-system &amp;&amp; npm install
+<span class="p">$</span> npm run demo               <span class="c"># regression-aware run on synthetic data</span></pre>
           </div>
         </div>
       </div>
@@ -222,6 +247,13 @@
           <p>Prompt-injection, header, and secret-exposure checks were non-destructive and run on my own account. SQL/command injection was deliberately <em>not</em> attempted against the production app - that belongs in a controlled staging environment.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="readme-cta">
+      <span class="txt"><b>Want the full picture?</b> The repository README (and each part's own README) has the <b>screenshots</b> and detailed write-ups &mdash; the bug report and evidence, the E2E and validation reports, the rubric design, and the qa-system.</span>
+      <a class="act fill" href="https://github.com/Susmita-WebDev/trupeer-qa-automation-assignment#readme" target="_blank" rel="noopener">Read the README for images &amp; details &#8599;</a>
     </div>
   </section>
 
