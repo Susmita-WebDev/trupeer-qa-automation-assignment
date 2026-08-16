@@ -10,7 +10,7 @@ Network tabs).
 
 What it shows:
 
-- **404 on `.../video/fonts/manifest.json`** - corroborates **BUG-4** (the font/asset pipeline misconfiguration) at the network layer.
+- **404 on `.../video/fonts/manifest.json`** - corroborates **DEV-3** (the font/asset pipeline hygiene note) at the network layer.
 - **`ensureToken: attempt 0 failed  Error: Invariant: missing action dispatcher.`** with a stack trace into `app.trupeer.ai/_next/static/chunks/635-*.js` - corroborates **DEV-1** (the Next.js Server-Actions race on editor load).
 - **`Userflow.js: Timed out waiting for font family Inter to load`** - a minor warning from the third-party onboarding script. On this run Userflow loaded; the separate **DEV-2** uncaught exception (`Could not load Userflow.js`) only occurs when that script is *blocked* (ad-blocker / privacy extension), which is why it is documented as conditional rather than shown here.
 

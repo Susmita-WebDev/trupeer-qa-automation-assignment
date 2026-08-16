@@ -116,7 +116,7 @@ Full setup, environment variables, and troubleshooting live in each part's READM
       <a href="part1/evidence/empty-prompt/">
         <img src="part1/evidence/empty-prompt/after.png" alt="A whitespace-only prompt still rewrites the whole script" />
       </a>
-      <sub><b>BUG-2</b> · a whitespace-only prompt is accepted and rewrites the script</sub>
+      <sub><b>BUG-4</b> · a whitespace-only prompt is accepted and rewrites the script</sub>
     </td>
   </tr>
 </table>

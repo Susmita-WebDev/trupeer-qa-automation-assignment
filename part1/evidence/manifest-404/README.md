@@ -1,4 +1,4 @@
-# Evidence: BUG-1 - `video/fonts/manifest.json` returns 404
+# Evidence: DEV-3 (asset hygiene) - `video/fonts/manifest.json` returns 404
 
 While the editor loads, the app requests a font manifest that does not exist, so
 every editor session records a failed network request.

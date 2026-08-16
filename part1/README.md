@@ -15,10 +15,10 @@ that surfaced, with reproducible evidence.
 
 ## The headline findings
 
-- **BUG-1** - "Modify Script with AI" applies no content moderation to prompts or output (trust & safety).
-- **BUG-2** - a whitespace-only prompt is accepted and spends an AI call rewriting the script (input validation).
+- **BUG-1** - prompt injection defeats the AI feature's guardrails and leaks its full system prompt (injection / info disclosure) - and the leaked prompt explains the over-rewrite behavior the Part 3 harness caught.
+- **BUG-2** - "Modify Script with AI" applies no content moderation to prompts or output (trust & safety).
 - **BUG-3** - the free-tier limit is bypassable: email verification is satisfied by disposable inboxes (business-logic / anti-abuse).
-- **BUG-4** - prompt injection defeats the AI feature's guardrails and leaks its full system prompt (injection / info disclosure) - and the leaked prompt explains the over-rewrite behavior the Part 3 harness caught.
+- **BUG-4** - a whitespace-only prompt is accepted and spends an AI call rewriting the script (input validation).
 
 Plus verified developer-level and hygiene observations (an app-level error on
 editor load, ungraceful degradation when a third-party script is blocked, and

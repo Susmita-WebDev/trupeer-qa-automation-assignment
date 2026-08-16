@@ -1,4 +1,4 @@
-# Evidence: BUG-2 - whitespace-only prompt is accepted and rewrites the script
+# Evidence: BUG-4 - whitespace-only prompt is accepted and rewrites the script
 
 A prompt of only spaces (16/300 characters) is accepted, and the AI rewrites the
 whole script instead of rejecting the empty instruction.

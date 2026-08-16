@@ -1,4 +1,4 @@
-# Evidence: BUG-4 - prompt injection leaks the AI feature's system prompt
+# Evidence: BUG-1 - prompt injection leaks the AI feature's system prompt
 
 A single reframed prompt caused "Modify Script with AI" to output its **entire
 system prompt** into the rewritten script.

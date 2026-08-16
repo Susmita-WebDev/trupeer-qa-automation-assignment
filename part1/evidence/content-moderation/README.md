@@ -1,4 +1,4 @@
-# Evidence: BUG-3 - no content moderation on "Modify Script with AI"
+# Evidence: BUG-2 - no content moderation on "Modify Script with AI"
 
 ## Summary
 
