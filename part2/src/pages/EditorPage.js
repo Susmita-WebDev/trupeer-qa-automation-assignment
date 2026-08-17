@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { BasePage } from './BasePage.js';
 import { env } from '../config/env.js';
 /** The video edit page: timeline, preview player, script panel, AI tooling. */
@@ -100,13 +101,14 @@ export class EditorPage extends BasePage {
     await this.waitForAppReady(timeout);
     await this.scriptPanel.visible(timeout);
     // Trupeer's Slate editor mounts its container before filling in the text, so
-    // wait until the script has actually hydrated with content before returning.
-    // Otherwise a test can read an empty panel in the moment between the two.
-    const deadline = Date.now() + timeout;
-    while (Date.now() < deadline) {
-      if ((await this.getScriptText().catch(() => '')).length > 20) return;
-      await this.page.waitForTimeout(500);
-    }
+    // wait until the script has actually hydrated with content before returning -
+    // otherwise a test can read an empty panel in the moment between the two.
+    await expect
+      .poll(async () => (await this.getScriptText().catch(() => '')).length, {
+        message: 'The editor script panel should hydrate with its transcript before use',
+        timeout,
+      })
+      .toBeGreaterThan(20);
   }
 
   /** True when timeline, preview and script panel are all rendered. The timeline
@@ -180,28 +182,43 @@ export class EditorPage extends BasePage {
    * Throws with a diagnostic message on timeout so failures are actionable.
    */
   async waitForScriptToChange(baseline, timeout) {
-    const pollMs = 1_000;
-    const deadline = Date.now() + timeout;
+    // Settle detection: the AI response streams in, so we wait until the script
+    // both differs from the baseline AND has stopped changing for two consecutive
+    // reads. expect.poll drives the cadence (no fixed sleep); asserting on a
+    // half-streamed script is the single most likely source of flake here.
     let previous = baseline;
     let stableReads = 0;
-    while (Date.now() < deadline) {
-      await this.page.waitForTimeout(pollMs);
-      const current = await this.getScriptText().catch(() => previous);
-      if (current !== baseline) {
-        stableReads = current === previous ? stableReads + 1 : 0;
-        if (stableReads >= 2) return current;
-      }
-      previous = current;
+    let settled = null;
+    try {
+      await expect
+        .poll(
+          async () => {
+            const current = await this.getScriptText().catch(() => previous);
+            if (current !== baseline) {
+              stableReads = current === previous ? stableReads + 1 : 0;
+              if (stableReads >= 2) {
+                settled = current;
+                return true;
+              }
+            }
+            previous = current;
+            return false;
+          },
+          { message: 'The AI rewrite should return and settle', timeout, intervals: [1_000] },
+        )
+        .toBe(true);
+    } catch {
+      const visibleError = (await this.aiErrorMessage.isVisible(1_000))
+        ? await this.aiErrorMessage.textContent()
+        : '(no error message rendered)';
+      throw new Error(
+        `The script did not change within ${timeout}ms of submitting the prompt. ` +
+          `UI error shown: ${visibleError}. ` +
+          `If this is reproducible, it is a product bug, not a test bug - ` +
+          `record it in part1/bugs.md.`,
+      );
     }
-    const visibleError = (await this.aiErrorMessage.isVisible(1_000))
-      ? await this.aiErrorMessage.textContent()
-      : '(no error message rendered)';
-    throw new Error(
-      `The script did not change within ${timeout}ms of submitting the prompt. ` +
-        `UI error shown: ${visibleError}. ` +
-        `If this is reproducible, it is a product bug, not a test bug - ` +
-        `record it in part1/bugs.md.`,
-    );
+    return settled;
   }
 
   /**
@@ -216,7 +233,14 @@ export class EditorPage extends BasePage {
 
     const before = await this.switchState(sw);
     await sw.click();
-    await this.page.waitForTimeout(600);
+    // Wait for the switch to actually flip (its aria-checked / data-state changes)
+    // rather than sleeping. Bounded, and non-fatal: if it never flips we fall
+    // through so the test can assert the real outcome and report it clearly.
+    try {
+      await expect.poll(() => this.switchState(sw), { timeout: 5_000 }).not.toBe(before);
+    } catch {
+      /* no flip within the bound - the test's own assertion will surface it */
+    }
     const after = await this.switchState(sw);
 
     // Restore the original state so we do not leave the video modified.

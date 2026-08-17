@@ -1,4 +1,5 @@
 import { test, expect } from '../src/fixtures/pages.js';
+import { env } from '../src/config/env.js';
 
 /**
  * Negative cases for "Modify Script with AI".
@@ -24,10 +25,11 @@ test.describe('Modify Script with AI - negative cases', () => {
       return; // The app refuses an empty instruction - the ideal behaviour.
     }
 
-    // Trupeer accepts it (BUG-2). Submit, let it settle, and assert the script
-    // survived intact rather than being blanked.
+    // Trupeer accepts it (BUG-2). Submit, then explicitly wait for the rewrite to
+    // complete - the Keep changes / Discard changes bar appears when it finishes -
+    // instead of a fixed sleep. Bounded by the configurable AI response timeout.
     await submit.click();
-    await loadedEditor.page.waitForTimeout(8_000);
+    await loadedEditor.keepChangesButton.isVisible(env.aiResponseTimeoutMs);
 
     expect(
       (await loadedEditor.getScriptText()).length,

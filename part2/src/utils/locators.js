@@ -32,6 +32,9 @@ export class FlexibleLocator {
         const locator = build(this.page).first();
         if ((await locator.count()) > 0) return locator;
       }
+      // Bounded retry cadence: re-check the candidate strategies every 250ms until
+      // one resolves or the deadline passes. This is a poll interval for a
+      // dynamically-rendered element, not a fixed "hope it happened" sleep.
       await this.page.waitForTimeout(250);
     } while (Date.now() < deadline);
     return this.candidates[0](this.page).first();
