@@ -130,18 +130,21 @@ failure.
 
 ## Waiting
 
-There are no `waitForTimeout(5000)`-style sleeps standing in for readiness.
-Waits are on observable conditions:
+Every wait is on an observable condition - there are no fixed
+`waitForTimeout(5000)`-style sleeps standing in for readiness:
 
 - `waitForAppReady()` - DOM ready, then network idle, then spinner hidden.
-- `waitForLoaded()` - the script panel is visible (it hydrates last).
-- `waitForScriptToChange()` - polls the script panel until the text both
-  **differs from the baseline** and **has stopped changing for two consecutive
-  polls**. The AI response streams in token by token; asserting on a
-  half-written script is the single most likely source of flake in this suite.
+- `waitForLoaded()` - `expect.poll` until the script panel has actually hydrated
+  with its transcript (Slate mounts the container before filling in the text).
+- `waitForScriptToChange()` - `expect.poll` until the script both **differs from
+  the baseline** and **has stopped changing for two consecutive reads**. The AI
+  response streams in token by token; asserting on a half-written script is the
+  single most likely source of flake in this suite.
+- The empty-prompt negative test waits for the rewrite to *complete* (the
+  Keep / Discard bar appears), not for a fixed duration.
 
-The one bounded `waitForTimeout` is in the empty-prompt negative test, where the
-assertion is that nothing happens - proving a negative needs a settling window.
+The only remaining interval is the `FlexibleLocator` resolver's 250ms retry
+cadence - a bounded poll for a dynamically-rendered element, not a fixed wait.
 
 ## Test inventory
 
@@ -150,14 +153,16 @@ assertion is that nothing happens - proving a negative needs a settling window.
 | `01-login.spec.js` | Session is authenticated; dashboard renders; at least one video exists. |
 | `02-editor-loads.spec.js` | Timeline, preview and script panel render; transcript is present; playback control exists. |
 | `03-modify-script-ai.spec.js` | A prompt returns a different, non-empty script and displays it; the dialog exposes its controls. |
-| `04-editor-interaction.spec.js` | Applying a background is reflected in the UI and survives a reload. |
+| `04-editor-interaction.spec.js` | Toggling the Zooms auto-zoom switch flips its state; the original state is restored afterward. |
 | `05-modify-script-negative.spec.js` | Empty prompt is rejected without touching the script; a 20k-character prompt errors or succeeds, but never corrupts the script. |
 
-Background was chosen for the "any one other editor feature" requirement because
-its effect is observable in the DOM as a selection state. Trim and zoom render
-to canvas, so verifying them honestly would need visual diffing - a claim of
-"trim works" backed only by "the button was clickable" would be worse than not
-testing it.
+The Zooms auto-zoom toggle was chosen for the "any one other editor feature"
+requirement because its effect is observable in the DOM as a switch state
+(`aria-checked` / `data-state`), so the test asserts the toggle actually changed
+rather than that a button was merely clickable. Features whose effect renders only
+to the WebGL canvas (trim, the zoom block itself) would need visual diffing to
+verify honestly. The test also restores the original state, so the run leaves the
+video unchanged.
 
 ## Reports and debugging
 

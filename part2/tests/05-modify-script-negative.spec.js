@@ -7,11 +7,11 @@ import { env } from '../src/config/env.js';
  * The assignment says: if the feature misbehaves, document it as a bug and adapt
  * the tests accordingly. That is exactly what the first test does - it encodes
  * the correct behaviour, then marks itself as an expected failure because of a
- * real defect found during exploratory testing (BUG-2 in part1/bugs.md).
+ * real defect found during exploratory testing (BUG-4 in part1/bugs.md).
  */
 test.describe('Modify Script with AI - negative cases', () => {
   // A whitespace-only prompt carries no instruction. Ideally submit would be
-  // disabled; Trupeer instead leaves it enabled and processes it (BUG-2 in
+  // disabled; Trupeer instead leaves it enabled and processes it (BUG-4 in
   // part1/bugs.md). Whichever path runs, the invariant that MUST hold is that
   // the script is never left empty or corrupted - which is what this asserts.
   test('an empty (whitespace-only) prompt does not blank or corrupt the script', async ({
@@ -25,7 +25,7 @@ test.describe('Modify Script with AI - negative cases', () => {
       return; // The app refuses an empty instruction - the ideal behaviour.
     }
 
-    // Trupeer accepts it (BUG-2). Submit, then explicitly wait for the rewrite to
+    // Trupeer accepts it (BUG-4). Submit, then explicitly wait for the rewrite to
     // complete - the Keep changes / Discard changes bar appears when it finishes -
     // instead of a fixed sleep. Bounded by the configurable AI response timeout.
     await submit.click();
